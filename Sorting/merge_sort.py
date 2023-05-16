@@ -10,9 +10,9 @@ def merged(left: Sequence[SupportsLessThanT],
 	"""Return a list created by merging left and right to one sequence. Assume
 	left and right are sorted ascending."""
 	
-	left_offset = right_offset = 0
 	_merged = []
-	
+	left_offset = right_offset = 0
+
 	while left_offset < len(left) and right_offset < len(right):
 		left_value = left[left_offset]
 		right_value = right[right_offset]
@@ -33,14 +33,12 @@ def merged(left: Sequence[SupportsLessThanT],
 def merge_sorted(unsorted: list[SupportsLessThanT]) -> list[SupportsLessThanT]:
 	"""Return a sorted list with all elements from *unsorted* Sequence."""
 	
+	if len(unsorted) <= 1:
+		return unsorted
+
 	mid_point = len(unsorted) // 2
-	
-	if mid_point >= 1:
-		left = merge_sorted(unsorted[:mid_point])
-		right = merge_sorted(unsorted[mid_point:])
-	else:
-		left = unsorted[:mid_point]
-		right = unsorted[mid_point:]
+	left = merge_sorted(unsorted[:mid_point])
+	right = merge_sorted(unsorted[mid_point:])
 	
 	return merged(left, right)
 

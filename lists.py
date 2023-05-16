@@ -41,7 +41,6 @@ class LinkedList(Generic[SupportsLessThanT]):
 		list."""
 		
 		self._head: Optional[Node[SupportsLessThanT]] = None
-		self._size = 0
 		if initial_data:
 			for data in reversed(initial_data):
 				self.add(data)
@@ -57,7 +56,7 @@ class LinkedList(Generic[SupportsLessThanT]):
 		
 		if isinstance(index, int):
 			if index < 0:
-				index += self._size
+				index += self.size
 			
 			if index < 0:
 				return None
@@ -66,11 +65,11 @@ class LinkedList(Generic[SupportsLessThanT]):
 				if i == index:
 					return node
 		elif isinstance(index, slice):
-			print(f"{index = }")
-			return [self[i] for i in range(index.start, index.stop, index.step)]
+			return [self[i]
+			        for i in range(index.start or 0, index.stop, index.step or 1)]
 		
 		return None
-	
+
 	def __iter__(self) -> Iterator[Node[SupportsLessThanT]]:
 		current_node = self._head
 		while current_node:
@@ -80,7 +79,7 @@ class LinkedList(Generic[SupportsLessThanT]):
 	def __str__(self) -> str:
 		"""Return string representation of the linked list."""
 		
-		if self.size() == 0:
+		if self.size == 0:
 			return "Empty Linked List"
 		
 		return ' -> '.join(str(node) for node in self)
@@ -95,8 +94,21 @@ class LinkedList(Generic[SupportsLessThanT]):
 		new_node = Node(data)
 		new_node.next_node = self._head
 		self._head = new_node
-		self._size += 1
 		return new_node
+	
+	def append(self, data: SupportsLessThanT) -> Node[SupportsLessThanT]:
+		"""Append a new node at the end. Return the appended node."""
+		
+		if self._head is None:
+			return self.add(data)
+		
+		current = self._head
+		
+		while current.next_node:
+			current = current.next_node
+		
+		current.next_node = Node(data)
+		return current.next_node
 	
 	def insert(self,
 	           data: SupportsLessThanT,
@@ -119,7 +131,6 @@ class LinkedList(Generic[SupportsLessThanT]):
 			new_node = Node(data)
 			new_node.next_node = current.next_node
 			current.next_node = new_node
-			self._size += 1
 			return new_node
 		else:
 			return None
@@ -131,7 +142,6 @@ class LinkedList(Generic[SupportsLessThanT]):
 		if self._head and self._head.data == key:
 			removed_node = self._head
 			self._head = self._head.next_node
-			self._size -= 1
 			return removed_node
 		
 		current = self._head
@@ -139,7 +149,6 @@ class LinkedList(Generic[SupportsLessThanT]):
 			if current.next_node.data == key:
 				removed_node = current.next_node
 				current.next_node = current.next_node.next_node
-				self._size -= 1
 				return removed_node
 			current = current.next_node
 		
@@ -156,7 +165,6 @@ class LinkedList(Generic[SupportsLessThanT]):
 		if index == 0:
 			removed_node = self._head
 			self._head = self._head.next_node
-			self._size -= 1
 			return removed_node
 		
 		position = index - 1
@@ -169,7 +177,6 @@ class LinkedList(Generic[SupportsLessThanT]):
 		if current and current.next_node:
 			removed_node = current.next_node
 			current.next_node = current.next_node.next_node
-			self._size -= 1
 			return removed_node
 		
 		return None
@@ -184,11 +191,63 @@ class LinkedList(Generic[SupportsLessThanT]):
 				return node
 		return None
 	
+	@property
 	def size(self) -> int:
 		"""Return the number of nodes in the linked list."""
+		size = 0
 		
-		return self._size
+		current = self._head
+		while current:
+			size += 1
+			current = current.next_node
+		return size
 	
+	def _split(self) -> tuple[LinkedList, LinkedList]:
+		mid_point = self.size // 2
+
+		left = LinkedList([node.data for node in self[:mid_point]])
+		left[mid_point - 1].next_node = None
+		right = LinkedList()
+		right._head = self[mid_point]
+
+		return left, right
+		
+	@staticmethod
+	def _merge(left: LinkedList, right: LinkedList) -> LinkedList:
+		_merged = LinkedList()
+		left_index = right_index = 0
+		
+		while left_index < left.size and right_index < right.size:
+			left_value = left[left_index].data
+			right_value = right[right_index].data
+	
+			if left_value < right_value:
+				_merged.append(left_value)
+				left_index += 1
+			else:
+				_merged.append(right_value)
+				right_index += 1
+		
+		while left_index < left.size:
+			_merged.append(left[left_index].data)
+			left_index += 1
+
+		while right_index < right.size:
+			_merged.append(right[right_index].data)
+			right_index += 1
+		
+		return _merged
+	
+	def merge_sort(self) -> LinkedList:
+		if self.size <= 1:
+			return self
+
+		left_part, right_part = self._split()
+		left = left_part.merge_sort()
+		right = right_part.merge_sort()
+
+		return self._merge(left, right)
+		
 	def sort(self) -> None:
 		"""In place sorts the linked list's nodes ascending on the node data."""
 		
@@ -210,7 +269,8 @@ if __name__ == "__main__":
 	
 	def main() -> None:
 		"""A few basci tests"""
-		for i in range(10):
+		# for i in range(10):
+		for i in (10,):
 			lst = list(range(i))
 			shuffle(lst)
 			linked_list: LinkedList[int] = LinkedList(lst)
@@ -224,11 +284,23 @@ if __name__ == "__main__":
 			print(f"{py_sorted_linked_list = }")
 			print(f"{sorted_linked_list    = }")
 			assert sorted_linked_list == py_sorted_linked_list
-	
+
+			ms_linked_list = linked_list.merge_sort()
+			print(f"AFTER ms_linked_list = linked_list.merge_sort():")
+			print(f"{linked_list           = }")
+			print(f"{ms_linked_list        = }")
+			print(f"{py_sorted_linked_list = }")
+			assert ms_linked_list == py_sorted_linked_list
+
 			linked_list.sort()
 			print(f"AFTER linked_list.sort() (IN PLACE):")
 			print(f"{linked_list           = }")
 			print(f"{py_sorted_linked_list = }")
 			assert linked_list == py_sorted_linked_list
 
+			lst = list(range(i))
+			linked_list: LinkedList[int] = LinkedList(lst)
+
+			if i > 3:
+				print(f"slice[1:{i}] = {linked_list[1:i]}")
 	main()
