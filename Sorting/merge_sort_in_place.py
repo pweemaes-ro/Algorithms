@@ -5,7 +5,7 @@ from common import SupportsLessThanT
 
 
 def merge_sort_in_place(unsorted: list[SupportsLessThanT]) -> None:
-	"""Merge sorts the data in *unsorted* in place."""
+	"""Merge sorts the data in *sequence* in place."""
 
 	_sorted = merge_sorted(unsorted)
 	for i, data in enumerate(_sorted):

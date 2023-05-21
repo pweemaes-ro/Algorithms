@@ -24,6 +24,7 @@ def merged(left: Sequence[SupportsLessThanT],
 			_merged.append(right_value)
 			right_offset += 1
 	
+	
 	_merged.extend(left[left_offset:])
 	_merged.extend(right[right_offset:])
 	
@@ -31,7 +32,7 @@ def merged(left: Sequence[SupportsLessThanT],
 
 
 def merge_sorted(unsorted: list[SupportsLessThanT]) -> list[SupportsLessThanT]:
-	"""Return a sorted list with all elements from *unsorted* Sequence."""
+	"""Return a new sorted list with all elements from *sequence* Sequence."""
 	
 	if len(unsorted) <= 1:
 		return unsorted
