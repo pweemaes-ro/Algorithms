@@ -1,7 +1,8 @@
 """Not suitable for large sequences..."""
+import operator
 from itertools import pairwise
 from random import shuffle
-from typing import MutableSequence, Sequence, TypeVar, Optional, Literal
+from typing import MutableSequence, Sequence, TypeVar, Optional
 
 from common import SupportsLessThanT
 
@@ -78,6 +79,7 @@ def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
 		compare_func = _sort_ascending
 	else:
 		compare_func = _sort_descending
+	
 	for i in range(1, n):
 		key = sequence[i]
 		# Insert sequence[i] into the sorted subarray sequence[: i].
@@ -92,22 +94,27 @@ T = TypeVar("T")
 
 items_tested = 0
 
-def linear_search_again(sequence: Sequence[T], n: int, key: T) -> Optional[int]:
+
+def _linear_search(sequence: Sequence[T], n: int, key: T) -> Optional[int]:
 	"""Return the index of the first occurance of x, or None if not found."""
 	global items_tested
 	i = 0
 	while i < n:
 		items_tested += 1
-		if sequence[i] == key:  # Average: (n + 1) / 2 times, worst case: n times
+		if sequence[i] == key:  # Checks: average = (n + 1) / 2, worst case = n.
 			return i
 		i += 1
 	return None
 
-# Qyestions about linear_search:
+# QUESTIONS about _linear_search:
+#
 # 1. How many elements of Sequence need to be checked on the average, assuming
 #    that the key is equailly likely to be any element in the Sequence?
+#
 # 2. How about the worst case?
+#
 # 3. Using Theta notation, give the average case and worst case runtimes
+#
 # JUSTIFY YOUR ANSWERS!
 #
 # ANSWERS:
@@ -116,11 +123,13 @@ def linear_search_again(sequence: Sequence[T], n: int, key: T) -> Optional[int]:
 #    ...
 #    If the key is the last item, n items are checked.
 #    Since each is equally likely, we have that the average nr of items checked
-#    is sum(1 to n) / n = ((n * (n+1)) / 2) / n = (n + 1) / 2.
+#    is sum(1 to n) / n = ((n * (n + 1)) / 2) / n = (n + 1) / 2.
 #    THIS IS VERIFIED BY average_case() function below.
+#
 # 2. Worst case is when the key is NOT in the sequence. Then all n items are
 #    checked.
 #    THIS IS VERIFIED BY worst_case() function below.
+#
 # 3. Both average and worst case are O(n). This follows from the fact that the
 #    nr of times the item test is executed is linear in both cases. This is in
 #    fact the only factor determining the execution time's dependency on n.
@@ -128,119 +137,16 @@ def linear_search_again(sequence: Sequence[T], n: int, key: T) -> Optional[int]:
 # Notice that in the best case, the first item is the key, and then the test
 # is executed exactly 1 time, so best case is constant time O(1).
 
-def __bin_to_int(binary: Sequence[int], n: int) -> int:
-	return sum(binary[i] * 2 ** i for i in range(n))
 
-
-def __int_to_bin(integer: int, n: int) -> MutableSequence[Literal[0, 1]]:
-	"""Notice that in the returned sequence item 0 represents the LSB!"""
+def is_sorted(sequence: Sequence[SupportsLessThanT],
+              ascending: bool = True) -> bool:
+	"""Return True if sequence is sorted (ascending), else False."""
+	compare_operator = operator.lt
+	if not ascending:
+		compare_operator = operator.gt
 	
-	bin_rep: MutableSequence[Literal[0, 1]] \
-		= [1 if (integer & (2 ** i)) else 0 for i in range(n)]
-	return bin_rep
-
-
-def binary_add(value_1: Sequence[Literal[0, 1]],
-               value_2: Sequence[Literal[0, 1]], n: int) \
-	-> Sequence[Literal[0, 1]]:
-	"""Adds value_1 to value_2."""
-
-	a = __bin_to_int(value_1, n)
-	print(f"{a=}")
-	b = __bin_to_int(value_2, n)
-	print(f"{b=}")
-	c_binary = __int_to_bin(a + b, n + 1)
-	assert a + b == __bin_to_int(c_binary, n + 1)
-	return c_binary
-
-
-def verify_sorted(sequence: Sequence[SupportsLessThanT]) -> bool:
-	return all(a < b or a == b for (a, b) in pairwise(sequence))
-
-def merge_ita(sequence: MutableSequence[SupportsLessThanT],
-              start: int,
-              middle: int,
-              stop: int) \
-	-> None:
-	"""In place merge based on 'Introduction to Algorithms'"""
-
-	left = sequence[start: middle]
-	right = sequence[middle: stop]
-
-	len_left = len(left)
-	len_right = len(right)
-	
-	left_offset = right_offset = 0
-	destination_offset = start
-	
-	while left_offset < len_left and right_offset < len_right:
-		left_value = left[left_offset]
-		right_value = right[right_offset]
-		
-		if left_value < right_value:
-			sequence[destination_offset] = left_value
-			left_offset += 1
-		else:
-			sequence[destination_offset] = right_value
-			right_offset += 1
-		
-		destination_offset += 1
-	
-	while left_offset < len_left:
-		sequence[destination_offset] = left[left_offset]
-		left_offset += 1
-		destination_offset += 1
-	
-	while right_offset < len_right:
-		sequence[destination_offset] = right[right_offset]
-		right_offset += 1
-		destination_offset += 1
-	
-
-def merge_sort_ita(sequence: MutableSequence[SupportsLessThanT],
-                   start: int = 0,
-                   stop: Optional[int] = None,
-                   level: int = 0) -> None:
-	"""The in place merge sort based upon 'Introduction to Algorithms'"""
-	
-	if stop is None:
-		stop = len(sequence)
-
-	if stop - start <= 1:
-		return
-
-	middle = (stop + start) // 2
-
-	merge_sort_ita(sequence, start, middle, level + 1)
-	merge_sort_ita(sequence, middle, stop, level + 1)
-	
-	merge_ita(sequence, start, middle, stop)
-
-lst: list[int] = []
-print(lst)
-merge_sort_ita(lst)
-print(lst)
-
-lst = [0]
-print(lst)
-merge_sort_ita(lst)
-print(lst)
-
-lst = [2, 1]
-print(lst)
-merge_sort_ita(lst)
-print(lst)
-
-lst = [12, 3, 7, 9, 14, 6, 11, 2]
-print(lst)
-merge_sort_ita(lst)
-print(lst)
-
-lst = [12, 3, 7, 9, 0, 14, 6, 11, 2]
-print(lst)
-merge_sort_ita(lst)
-print(lst)
-exit(0)
+	return all(compare_operator(a, b) or a == b
+	           for (a, b) in pairwise(sequence))
 
 
 if __name__ == "__main__":
@@ -249,57 +155,49 @@ if __name__ == "__main__":
 		"""Driver code."""
 		
 		lst: list[int] = [5, 2, 4, 6, 1, 3]
-		print(lst)
 		insertion_sort(lst, len(lst))
-		print(lst)
+		assert is_sorted(lst)
 		insertion_sort(lst, len(lst), ascending=False)
-		print(lst)
+		assert is_sorted(lst, ascending=False)
 		for x in range(-1, 8):
-			print(f"{x} found at index {linear_search_again(lst, len(lst), x)}")
-	
-		# NOTICE: FORMAT IS UNUSUAL, since MSB is bit 0!
-		#                           1 + 4 + 8 + 32 + 64 + 128 = 245
-		v_1: list[Literal[0, 1]] = [1, 0, 1, 0, 1, 1, 1, 1]
-		#                           1 + 2 + 4 + 8 + 32 = 47
-		v_2: list[Literal[0, 1]] = [1, 1, 1, 1, 0, 1, 0, 0]
-		assert len(v_1) == len(v_2)
-		add_result = binary_add(v_1, v_2, len(v_1))
-		print(f"a+b={__bin_to_int(binary_add(v_1, v_2, len(v_1)), len(add_result))}")
-	# main()
-	
+			if x in lst:
+				assert _linear_search(lst, len(lst), x) == lst.index(x)
+			else:
+				assert _linear_search(lst, len(lst), x) is None
+
 	def average_case() -> None:
+		"""Tests assumption that on average the nr of checks in linear search
+		algorithm is (n + 1) / 2."""
+		
 		global items_tested
+		
 		items_tested = 0
 		nr_tests = 500000
 		n = 10
-		print(f"Average case nr of items tested in linear_search "
-		      f"({nr_tests = }, {n = }):")
+		
 		for i in range(nr_tests):
 			lst = list(range(n))
 			shuffle(lst)
-			linear_search_again(lst, n, 0)
-		
-		print(f"Expected avg = (n + 1) / 2 = {(n + 1) / 2:.2f}")
-		print(f"Counted avg                = {items_tested/nr_tests:.2f}")
-	
+			_linear_search(lst, n, 0)
+
+		assert f"{(n + 1) / 2:.2f}" == f"{items_tested/nr_tests:.2f}"
 	
 	def worst_case() -> None:
+		"""Tests assumption that in the worst case the nr of checks in linear
+		search algorithm is n."""
+		
 		global items_tested
 		items_tested = 0
 		nr_tests = 500000
 		n = 10
-		print(f"Worst case nr of items tested in linear_search "
-		      f"({nr_tests = }, {n = }):")
+
 		for i in range(nr_tests):
 			lst = list(range(n))
 			shuffle(lst)
-			linear_search_again(lst, n, -1)
+			_linear_search(lst, n, -1)
 		
-		print(f"Expected avg = n = {n:.2f}")
-		print(f"Counted avg      = {items_tested/nr_tests:.2f}")
-	
-	
+		assert f"{n:.2f}" == f"{items_tested / nr_tests:.2f}"
+
+	main()
 	average_case()
 	worst_case()
-
-

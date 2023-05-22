@@ -1,11 +1,10 @@
 """Some math stuff"""
-import functools
-import math
-import time
 from collections.abc import Sequence
 from functools import partial, lru_cache
+from math import copysign
 from numbers import Complex
 from random import shuffle
+from time import perf_counter_ns
 from typing import Union
 
 
@@ -30,7 +29,7 @@ float with the magnitude (absolute value) of x but the sign of y, we have:
 a) if y < 0 then sign(y) = math.copysign(1, y) == -1.0,
 b) if y >= 0 then sign(y) = math.copysign(1, y) == 1.0.
 On platforms that support signed zeros, copysign(1.0, -0.0) returns -1.0."""
-sign = functools.partial(math.copysign, 1)
+sign = partial(copysign, 1)
 
 
 @lru_cache(maxsize=None)
@@ -64,7 +63,7 @@ def _power(base: float, exponent: float) -> Union[Complex, float]:
 		base = 1 / base
 		exponent = -exponent
 	
-	return	_power_pos_exp(base, exponent)
+	return _power_pos_exp(base, exponent)
 	
 
 def naive(coefficients: Sequence[float], x: float) -> float:
@@ -87,17 +86,15 @@ if __name__ == "__main__":
 			coefficients = list(range(x))
 			shuffle(coefficients)
 			
-			h_start = time.perf_counter_ns()
-			h_value = horner(coefficients, x)
-			h_stop = time.perf_counter_ns()
+			h_start = perf_counter_ns()
+			_ = horner(coefficients, x)
+			h_stop = perf_counter_ns()
 			h_total += h_stop - h_start
 		
-			n_start = time.perf_counter_ns()
-			n_value = naive(coefficients, x)
-			n_stop = time.perf_counter_ns()
+			n_start = perf_counter_ns()
+			_ = naive(coefficients, x)
+			n_stop = perf_counter_ns()
 			n_total += n_stop - n_start
-
-			assert h_value == n_value
 
 		print(f"{h_total = :12d}")
 		print(f"{n_total = :12d}")

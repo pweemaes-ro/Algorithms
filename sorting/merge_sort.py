@@ -24,7 +24,6 @@ def merged(left: Sequence[SupportsLessThanT],
 			_merged.append(right_value)
 			right_offset += 1
 	
-	
 	_merged.extend(left[left_offset:])
 	_merged.extend(right[right_offset:])
 	

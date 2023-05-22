@@ -28,6 +28,7 @@ def binary_search(data: Sequence[SupportsLessThanT],
 
 
 if __name__ == "__main__":
+	
 	def binary_search_test() -> None:
 		"""Test binary_search function."""
 		

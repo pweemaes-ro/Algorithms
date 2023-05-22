@@ -1,18 +1,19 @@
 """In place merge sort based on 'Introduction to Algorithms'. """
-import time
 from collections.abc import MutableSequence, Sequence
-from copy import deepcopy, copy
+from copy import copy
 from random import shuffle
 from typing import Optional, cast
 
 from common import SupportsLessThanT
 
+
 def naive_inversion_count(sequence: Sequence[SupportsLessThanT]) -> int:
 	"""Only here for comparing with the MUCH faster inversion_count function.
-	Only suitable for relatively small sequences (time complexity = O(n^2)."""
+	Only suitable for relatively small sequences, time complexity = O(n^2)."""
+	
 	inversions = 0
 	
-	for i in range(len(sequence)):
+	for i in range(len(sequence) - 1):
 		left = sequence[i]
 		for right in sequence[i+1:]:
 			if left > right:
@@ -105,19 +106,19 @@ if __name__ == "__main__":
 	
 
 	def inversion_count_test() -> None:
-		for i in (1000000,): # range(100):
+		"""Test inversion count"""
+
+		for i in range(100):
+			
 			lst = list(range(i))
-			inversions = merge_sort_ita(lst)
-			expected = 0
-			# print(f"{inversions = }, {expected = } ")
-			# assert inversions == 0
+			c = inversion_count(lst)
+			assert c == 0
+			assert c == naive_inversion_count(lst)
 			
 			lst = list(reversed(range(i)))
-			inversions = merge_sort_ita(lst)
-			expected = (len(lst) * (len(lst) - 1)) // 2
-			# print(f"{inversions = }, {expected = } ")
-			assert inversions == len(lst) * (len(lst) - 1) / 2
-			# print("*" * 10)
+			c = inversion_count(lst)
+			assert c == (len(lst) * (len(lst) - 1)) // 2
+			assert c == naive_inversion_count(lst)
 		
 		lst = 2 * list(range(10))
 		shuffle(lst)
@@ -131,4 +132,3 @@ if __name__ == "__main__":
 	
 	# merge_sort_ita_test()
 	inversion_count_test()
-

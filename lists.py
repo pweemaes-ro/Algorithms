@@ -6,8 +6,8 @@ from collections.abc import Iterator
 from random import shuffle
 from typing import Optional, Generic, Reversible, Any, Callable, Self, TypeAlias
 
-from Sorting.merge_sort import merge_sorted
-from Sorting.merge_sort_in_place import merge_sort_in_place
+from sorting.merge_sort import merge_sorted
+from sorting.merge_sort_in_place import merge_sort_in_place
 from common import SupportsLessThanT
 
 

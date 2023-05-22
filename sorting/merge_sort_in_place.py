@@ -1,6 +1,6 @@
 """merge_sort function (in place sort)."""
 from random import shuffle
-from Sorting.merge_sort import merge_sorted
+from sorting.merge_sort import merge_sorted
 from common import SupportsLessThanT
 
 

@@ -6,6 +6,8 @@ from common import SupportsLessThanT
 
 
 def selection_sort(unsorted: MutableSequence[SupportsLessThanT]) -> None:
+	"""In place sorting algorithm. Not very efficient, use merge sort!"""
+	
 	n = len(unsorted)
 	for i in range(n - 1):
 		s = i
@@ -15,12 +17,17 @@ def selection_sort(unsorted: MutableSequence[SupportsLessThanT]) -> None:
 		if s != i:
 			unsorted[s], unsorted[i] = unsorted[i], unsorted[s]
 
-for i in range(10):
-	lst = list(range(i))
-	shuffle(lst)
-	print(lst)
-	py_sorted = sorted(lst)
-	selection_sort(lst)
-	assert lst == py_sorted
-	print(lst)
-print("Done, no assertions were triggered")
+
+if __name__ == "__main__":
+ 
+	def main() -> None:
+		"""Basic tests..."""
+		
+		for i in range(10):
+			lst = list(range(i))
+			shuffle(lst)
+			py_sorted = sorted(lst)
+			selection_sort(lst)
+			assert lst == py_sorted
+	
+	main()
