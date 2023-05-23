@@ -69,23 +69,24 @@ def merge_sort(sequence: MutableSequence[SupportsLessThanT],
 # call has start > stop - 1.
 
 
+def test_merge_sort() -> None:
+	"""Test the merge sort ('Introduction to Algorithm' version)."""
+	
+	for i in range(10):
+		lst = list(range(i))
+		shuffle(lst)
+		sorted_lst = sorted(lst)
+		merge_sort(lst)
+		assert sorted_lst == lst
+
+	# print("merge_sort_test completed without errors.")
+
+	
 if __name__ == "__main__":
-
-	def _merge_sort_test() -> None:
-		"""Test the merge sort ('Introduction to Algorithm' version)."""
-		
-		for i in range(10):
-			lst = list(range(i))
-			shuffle(lst)
-			sorted_lst = sorted(lst)
-			merge_sort(lst)
-			assert sorted_lst == lst
-
-		print("merge_sort_test completed without errors.")
-
-	def main() -> None:
+	
+	def _main() -> None:
 		"""Some testing"""
-		_merge_sort_test()
+		test_merge_sort()
 
-	main()
+	_main()
 	

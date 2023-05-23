@@ -9,7 +9,7 @@ from common import SupportsLessThanT
 def linear_search(data: Sequence[SupportsLessThanT],
                   target: SupportsLessThanT) -> Optional[int]:
 	"""Return the 0-based index of *target* in *data* if *target* found in
-	*data*, else return *None*"""
+	*data*, else return *None*."""
 	
 	for i in range(len(data)):
 		if data[i] == target:
@@ -73,65 +73,62 @@ def _linear_search(sequence: Sequence[T], n: int, key: T) -> Optional[int]:
 # is executed exactly 1 time, so best case is constant time O(1).
 
 
-if __name__ == "__main__":
+def test_linear_search() -> None:
+	"""Test binary_search function."""
 	
-	def _linear_search_test() -> None:
-		"""Test binary_search function."""
+	for i in range(10):
+		data = list(range(i))
+		for target in data:
+			assert linear_search(data, target) == target
 		
-		# search_func = linear_search
-		for i in range(10):
-			data = list(range(i))
-			for target in data:
-				assert linear_search(data, target) == target
-			
-			assert linear_search([], 1) is None
-			assert linear_search([], 0) is None
-			
-			not_in_data = (-1, i)
-			for target in not_in_data:
-				assert linear_search(data, target) is None
+		assert linear_search([], 1) is None
+		assert linear_search([], 0) is None
+		
+		not_in_data = (-1, i)
+		for target in not_in_data:
+			assert linear_search(data, target) is None
 
-		print("linear_search_test completed without errors.")
+
+def _average_case() -> None:
+	"""Tests assumption that on average the nr of checks in linear search
+	algorithm is (n + 1) / 2."""
 	
+	global items_tested
 	
-	def _average_case() -> None:
-		"""Tests assumption that on average the nr of checks in linear search
-		algorithm is (n + 1) / 2."""
-		
-		global items_tested
-		
-		items_tested = 0
-		nr_tests = 500000
-		n = 10
-		
-		for i in range(nr_tests):
-			lst = list(range(n))
-			shuffle(lst)
-			_linear_search(lst, n, 0)
-		
-		assert f"{(n + 1) / 2:.2f}" == f"{items_tested / nr_tests:.2f}"
+	items_tested = 0
+	nr_tests = 500000
+	n = 10
 	
+	for i in range(nr_tests):
+		lst = list(range(n))
+		shuffle(lst)
+		_linear_search(lst, n, 0)
 	
-	def _worst_case() -> None:
-		"""Tests assumption that in the worst case the nr of checks in linear
-		search algorithm is n."""
-		
-		global items_tested
-		items_tested = 0
-		nr_tests = 500000
-		n = 10
-		
-		for i in range(nr_tests):
-			lst = list(range(n))
-			shuffle(lst)
-			_linear_search(lst, n, -1)
-		
-		assert f"{n:.2f}" == f"{items_tested / nr_tests:.2f}"
+	assert f"{(n + 1) / 2:.2f}" == f"{items_tested / nr_tests:.2f}"
+
+
+def _worst_case() -> None:
+	"""Tests assumption that in the worst case the nr of checks in linear
+	search algorithm is n."""
 	
-	def main() -> None:
+	global items_tested
+	items_tested = 0
+	nr_tests = 500000
+	n = 10
+	
+	for i in range(nr_tests):
+		lst = list(range(n))
+		shuffle(lst)
+		_linear_search(lst, n, -1)
+	
+	assert f"{n:.2f}" == f"{items_tested / nr_tests:.2f}"
+
+if __name__ == "__main__":
+
+	def _main() -> None:
 		"""Do some basic tests..."""
-		_linear_search_test()
+		test_linear_search()
 		# _average_case()
 		# _worst_case()
-
-	main()
+	
+	_main()

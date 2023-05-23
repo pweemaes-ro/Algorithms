@@ -52,55 +52,52 @@ def _naive_inversion_count(sequence: Sequence[SupportsLessThanT]) -> int:
 	return inversions
 
 
-if __name__ == "__main__":
-
-	def _is_sorted_test() -> None:
-		for i in range(10, 100):
-			lst = list(range(i))
-			shuffle(lst)
-			
-			assert is_sorted(lst) == (lst == sorted(lst))
-			assert is_sorted(sorted(lst))
-			assert not is_sorted(sorted(lst), ascending=False)
-			assert is_sorted(sorted(lst, reverse=True), ascending=False)
-			assert not is_sorted(sorted(lst, reverse=True))
-			
-		print("is_sorted_test completed without errors.")
-
-	def _inversion_count_test() -> None:
-		"""Test inversion count"""
-		
-		for i in range(100):
-			lst = list(range(i))
-			c = inversion_count(lst)
-			shuffle(lst)
-			naive_count = _naive_inversion_count(lst)
-			normal_count = inversion_count(lst)
-			assert naive_count == normal_count
-
-			lst = list(reversed(range(i)))
-			naive_count = _naive_inversion_count(lst)
-			normal_count = inversion_count(lst)
-			assert naive_count == normal_count == \
-			       (len(lst) * (len(lst) - 1)) // 2
-
-		
-		lst = 2 * list(range(10))
+def test_is_sorted() -> None:
+	for i in range(10, 100):
+		lst = list(range(i))
 		shuffle(lst)
-		verify_lst = copy(lst)
-		c_1 = inversion_count(lst)
-		assert lst == verify_lst    # inversion count should leave lst unchanged
-		c_2 = _naive_inversion_count(lst)
-		assert lst == verify_lst
-		assert c_1 == c_2
 		
-		print("inversion_count_test completed without errors.")
+		assert is_sorted(lst) == (lst == sorted(lst))
+		assert is_sorted(sorted(lst))
+		assert not is_sorted(sorted(lst), ascending=False)
+		assert is_sorted(sorted(lst, reverse=True), ascending=False)
+		assert not is_sorted(sorted(lst, reverse=True))
+		
+	# print("is_sorted_test completed without errors.")
+
+def test_inversion_count() -> None:
+	"""Test inversion count"""
+	
+	for i in range(100):
+		lst = list(range(i))
+		c = inversion_count(lst)
+		shuffle(lst)
+		naive_count = _naive_inversion_count(lst)
+		normal_count = inversion_count(lst)
+		assert naive_count == normal_count
+
+		lst = list(reversed(range(i)))
+		naive_count = _naive_inversion_count(lst)
+		normal_count = inversion_count(lst)
+		assert naive_count == normal_count == \
+		       (len(lst) * (len(lst) - 1)) // 2
+	
+	lst = 2 * list(range(10))
+	shuffle(lst)
+	verify_lst = copy(lst)
+	c_1 = inversion_count(lst)
+	assert lst == verify_lst    # inversion count should leave lst unchanged
+	c_2 = _naive_inversion_count(lst)
+	assert lst == verify_lst
+	assert c_1 == c_2
+	
+	# print("inversion_count_test completed without errors.")
 
 if __name__ == "__main__":
 
-	def main() -> None:
+	def _main() -> None:
 		"""Some basic tests"""
-		_inversion_count_test()
-		_is_sorted_test()
+		test_inversion_count()
+		test_is_sorted()
 		
-	main()
+	_main()

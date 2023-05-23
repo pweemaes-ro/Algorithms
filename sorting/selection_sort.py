@@ -18,21 +18,21 @@ def selection_sort(unsorted: MutableSequence[SupportsLessThanT]) -> None:
 			unsorted[s], unsorted[i] = unsorted[i], unsorted[s]
 
 
-if __name__ == "__main__":
- 
-	def _selection_sort_test() -> None:
-		"""Basic tests..."""
-		
-		for i in range(10):
-			lst = list(range(i))
-			shuffle(lst)
-			py_sorted = sorted(lst)
-			selection_sort(lst)
-			assert lst == py_sorted
-		
-		print(f"selection_sort test completed without errors.")
+def test_selection_sort() -> None:
+	"""Basic tests..."""
 	
-	def main() -> None:
-		_selection_sort_test()
+	for i in range(10):
+		lst = list(range(i))
+		shuffle(lst)
+		py_sorted = sorted(lst)
+		selection_sort(lst)
+		assert lst == py_sorted
+	
+	# print(f"selection_sort test completed without errors.")
+	
+if __name__ == "__main__":
+	
+	def _main() -> None:
+		test_selection_sort()
 
-	main()
+	_main()

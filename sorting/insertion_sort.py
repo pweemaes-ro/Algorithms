@@ -135,40 +135,40 @@ def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
 	_insertion_sort(sequence, n, compare_func)
 
 
+class _SortFunc(Protocol):
+	"""The best way to deal with 'complicated' function arguments (with
+	default values)."""
+	
+	def __call__(self,
+	             sequence: MutableSequence[SupportsLessThanT],
+	             n: int,
+	             ascending: bool = True) -> None:
+		...
+
+
+def _test_insertion_sort_function(sort_function: _SortFunc) -> None:
+	for i in range(250):
+		lst: list[int] = list(range(i))
+
+		shuffle(lst)
+		sort_function(lst, len(lst))
+		assert is_sorted(lst)
+
+		shuffle(lst)
+		sort_function(lst, len(lst), ascending=False)
+		assert is_sorted(lst, ascending=False)
+
+
+def test_insertion_sort() -> None:
+	"""Driver code."""
+
+	for sort_function in (insertion_sort, insertion_sort_recursive):
+		_test_insertion_sort_function(sort_function)
+		# print(f"{sort_function.__name__} completed without errors.")
+
 if __name__ == "__main__":
 	
-	class _SortFunc(Protocol):
-		"""The best way to deal with 'complicated' function arguments (with
-		default values)."""
-		
-		def __call__(self,
-		             sequence: MutableSequence[SupportsLessThanT],
-		             n: int,
-		             ascending: bool = True) -> None:
-			...
-	
-	
-	def _test_sort_function(sort_function: _SortFunc) -> None:
-		for i in range(250):
-			lst: list[int] = list(range(i))
+	def _main() -> None:
+		test_insertion_sort()
 
-			shuffle(lst)
-			sort_function(lst, len(lst))
-			assert is_sorted(lst)
-
-			shuffle(lst)
-			sort_function(lst, len(lst), ascending=False)
-			assert is_sorted(lst, ascending=False)
-
-
-	def _test_insertion_sort() -> None:
-		"""Driver code."""
-
-		for sort_function in (insertion_sort, insertion_sort_recursive):
-			_test_sort_function(sort_function)
-			print(f"{sort_function.__name__} completed without errors.")
-
-	def main() -> None:
-		_test_insertion_sort()
-
-	main()
+	_main()
