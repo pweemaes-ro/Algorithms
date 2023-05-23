@@ -6,6 +6,8 @@
       <sourceFolder url="file://$MODULE_DIR$/sorting" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/searching/.pytest_cache/v" />
+      <excludeFolder url="file://$MODULE_DIR$/sorting/.pytest_cache/v" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
