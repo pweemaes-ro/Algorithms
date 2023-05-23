@@ -20,7 +20,7 @@ def selection_sort(unsorted: MutableSequence[SupportsLessThanT]) -> None:
 
 if __name__ == "__main__":
  
-	def main() -> None:
+	def _selection_sort_test() -> None:
 		"""Basic tests..."""
 		
 		for i in range(10):
@@ -29,5 +29,10 @@ if __name__ == "__main__":
 			py_sorted = sorted(lst)
 			selection_sort(lst)
 			assert lst == py_sorted
+		
+		print(f"selection_sort test completed without errors.")
 	
+	def main() -> None:
+		_selection_sort_test()
+
 	main()
