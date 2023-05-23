@@ -1,5 +1,6 @@
 """Not suitable for large sequences..."""
 import operator
+from collections.abc import Callable
 from itertools import pairwise
 from random import shuffle
 from typing import MutableSequence, Sequence, TypeVar, Optional
@@ -69,6 +70,47 @@ def _sort_descending(key: SupportsLessThanT, value: SupportsLessThanT) -> bool:
 	return value < key
 
 
+def move_to_place(sequence: MutableSequence[SupportsLessThanT],
+                  key_index: int,
+                  compare_func: Callable[[SupportsLessThanT,
+                                          SupportsLessThanT], bool]) -> None:
+	"""Insert sequence[key_index] into the sorted subarray
+	sequence[: key_index]."""
+
+	key = sequence[key_index]
+	j = key_index - 1
+	while j >= 0 and compare_func(key, sequence[j]):
+		sequence[j + 1] = sequence[j]
+		j -= 1
+	sequence[j + 1] = key
+
+
+def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
+                             n: int,
+                             ascending: bool = True) -> None:
+	"""You can also think of insertion sort as a recursive algorithm. In order
+	to sort A[0: n], recursively sort the subarray A[0: n – 1] and then
+	insert A[n] into the sorted subarray A[0 : n – 1]."""
+	
+	if ascending:
+		compare_func = _sort_ascending
+	else:
+		compare_func = _sort_descending
+	
+	def _insertion_sort_recursive(_sequence: MutableSequence[SupportsLessThanT],
+	                              _n: int) -> None:
+		_n -= 1
+	
+		if _n < 1:
+			return
+		
+		_insertion_sort_recursive(_sequence, _n)
+	
+		move_to_place(_sequence, _n, compare_func)
+	
+	_insertion_sort_recursive(sequence, n)
+
+
 def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
                    n: int,
                    ascending: bool = True) -> None:
@@ -80,14 +122,13 @@ def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
 	else:
 		compare_func = _sort_descending
 	
-	for i in range(1, n):
-		key = sequence[i]
-		# Insert sequence[i] into the sorted subarray sequence[: i].
-		j = i - 1
-		while j >= 0 and compare_func(key, sequence[j]):
-			sequence[j + 1] = sequence[j]
-			j -= 1
-		sequence[j + 1] = key
+	def _insertion_sort(_sequence: MutableSequence[SupportsLessThanT],
+	                    _n: int) -> None:
+		
+		for i in range(1, _n):
+			move_to_place(_sequence, i, compare_func)
+
+	_insertion_sort(sequence, n)
 
 
 T = TypeVar("T")
@@ -96,32 +137,38 @@ items_tested = 0
 
 
 def _linear_search(sequence: Sequence[T], n: int, key: T) -> Optional[int]:
-	"""Return the index of the first occurance of x, or None if not found."""
+	"""Return the index of the first occurance of x, or None if not found.
+	This implementation only for the sake of answering the questions (and
+	verifying the answers with functions)."""
+	
 	global items_tested
 	i = 0
+	
 	while i < n:
 		items_tested += 1
 		if sequence[i] == key:  # Checks: average = (n + 1) / 2, worst case = n.
 			return i
 		i += 1
+	
 	return None
 
 # QUESTIONS about _linear_search:
 #
-# 1. How many elements of Sequence need to be checked on the average, assuming
-#    that the key is equailly likely to be any element in the Sequence?
+# 1. How many elements of *sequence* need to be checked on average, assuming
+#    that the key is equailly likely to be any element in *sequence*?
 #
 # 2. How about the worst case?
 #
-# 3. Using Theta notation, give the average case and worst case runtimes
+# 3. Using Theta notation, give the average case and worst case runtimes.
 #
 # JUSTIFY YOUR ANSWERS!
 #
 # ANSWERS:
+#
 # 1. If the key is the first item, 1 item is checked.
 #    If the key is the second item, 2 items are checked.
 #    ...
-#    If the key is the last item, n items are checked.
+#    If the key is the last item (or not found), n items are checked.
 #    Since each is equally likely, we have that the average nr of items checked
 #    is sum(1 to n) / n = ((n * (n + 1)) / 2) / n = (n + 1) / 2.
 #    THIS IS VERIFIED BY average_case() function below.
@@ -131,8 +178,8 @@ def _linear_search(sequence: Sequence[T], n: int, key: T) -> Optional[int]:
 #    THIS IS VERIFIED BY worst_case() function below.
 #
 # 3. Both average and worst case are O(n). This follows from the fact that the
-#    nr of times the item test is executed is linear in both cases. This is in
-#    fact the only factor determining the execution time's dependency on n.
+#    nr of times the item test is executed is linear in both cases. This test
+#    is the only dependency on n.
 #
 # Notice that in the best case, the first item is the key, and then the test
 # is executed exactly 1 time, so best case is constant time O(1).
@@ -141,11 +188,13 @@ def _linear_search(sequence: Sequence[T], n: int, key: T) -> Optional[int]:
 def is_sorted(sequence: Sequence[SupportsLessThanT],
               ascending: bool = True) -> bool:
 	"""Return True if sequence is sorted (ascending), else False."""
-	compare_operator = operator.lt
-	if not ascending:
-		compare_operator = operator.gt
 	
-	return all(compare_operator(a, b) or a == b
+	if ascending:
+		compare_operator = operator.le
+	else:
+		compare_operator = operator.ge
+
+	return all(compare_operator(a, b)
 	           for (a, b) in pairwise(sequence))
 
 
@@ -153,17 +202,25 @@ if __name__ == "__main__":
  
 	def main() -> None:
 		"""Driver code."""
-		
-		lst: list[int] = [5, 2, 4, 6, 1, 3]
-		insertion_sort(lst, len(lst))
-		assert is_sorted(lst)
-		insertion_sort(lst, len(lst), ascending=False)
-		assert is_sorted(lst, ascending=False)
-		for x in range(-1, 8):
-			if x in lst:
-				assert _linear_search(lst, len(lst), x) == lst.index(x)
-			else:
-				assert _linear_search(lst, len(lst), x) is None
+
+		functions = (insertion_sort, insertion_sort_recursive)
+		for function in functions:
+			for i in range(250):
+				lst: list[int] = list(range(i))
+				shuffle(lst)
+
+				for x in range(-1, 8):
+					if x in lst:
+						assert _linear_search(lst, len(lst), x) == lst.index(x)
+					else:
+						assert _linear_search(lst, len(lst), x) is None
+
+				function(lst, len(lst))
+				assert is_sorted(lst)
+
+				function(lst, len(lst), ascending=False)
+				assert is_sorted(lst, ascending=False)
+
 
 	def average_case() -> None:
 		"""Tests assumption that on average the nr of checks in linear search

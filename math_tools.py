@@ -2,10 +2,8 @@
 from collections.abc import Sequence
 from functools import partial, lru_cache
 from math import copysign
-from numbers import Complex
 from random import shuffle
 from time import perf_counter_ns
-from typing import Union
 
 
 def horner(coefficients: Sequence[float], x: float) -> float:
@@ -33,40 +31,44 @@ sign = partial(copysign, 1)
 
 
 @lru_cache(maxsize=None)
-def _power_pos_exp(base: float, exponent: float) -> Union[Complex, float]:
+def _power_pos_exp(base: complex, exponent: complex) -> complex:
 	"""Cached power functon for POSITIVE or ZERO exponents only! Is much faster
 	than math.pow() function, but much slower than horner() function."""
 
-	if exponent < 0.0:
+	# if exponent < 0.0:
+	if sign(exponent) == -1.0:
 		raise ValueError(f"exponent must be >= 0, not {exponent}")
 
-	if exponent <= 1.0:
+	if abs(exponent) <= 1.0:
+		# return pow(base, exponent)
 		return base ** exponent
-
+		
 	return base * _power_pos_exp(base, exponent - 1)
 
 
-def _power(base: float, exponent: float) -> Union[Complex, float]:
+def _power(base: complex, exponent: complex) -> complex:
 	"""(Indirectly cached) power function. Delegates to _power_pos_exp function
 	(which is a cached power function) by modifying base and exponent if
 	exponent is negative, using base^(-exponent) = (1/base)^exponent."""
 
 	if base == 0:
-		if exponent < 0:
+		# if exponent < 0:
+		if sign(exponent) == -1.0:
 			raise ValueError(f"Negative powers of 0 are undefined.")
 		elif exponent == 0:
 			return 1.0
 		else:
 			return 0.0
 
-	if exponent < 0:
+	# if exponent < 0:
+	if sign(exponent) == -1.0:
 		base = 1 / base
 		exponent = -exponent
 	
 	return _power_pos_exp(base, exponent)
 	
 
-def naive(coefficients: Sequence[float], x: float) -> float:
+def naive(coefficients: Sequence[int], x: float) -> complex:
 	"""Naive way of calculating a polynomial...
 	P_n(x) = a_n x^n + a_{n-1} x^{n-1} + ... + a_2 x^2 + a_1 x + a_0
 	Coefficients must be in order: a_n, a_{n-1}, ..., a_0, that is, if the

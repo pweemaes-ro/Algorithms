@@ -3,12 +3,11 @@ from __future__ import annotations
 
 import time
 from collections.abc import Iterator
+from copy import copy
 from random import shuffle
 from typing import Optional, Generic, Reversible, Any, Callable, Self, TypeAlias
-
-from sorting.merge_sort import merge_sorted
-from sorting.merge_sort_in_place import merge_sort_in_place
 from common import SupportsLessThanT
+from merge_sort import merge_sort
 
 
 class Node(Generic[SupportsLessThanT]):
@@ -269,8 +268,7 @@ class LinkedList(Generic[SupportsLessThanT]):
 	def sort(self) -> None:
 		"""In place sorts the linked list's nodes ascending on the node data."""
 
-		merge_sort_in_place(nodes := list(self))
-
+		merge_sort(nodes := list(self))
 		self._head = None
 		for node in reversed(nodes):
 			self.add(node.data)
@@ -278,9 +276,11 @@ class LinkedList(Generic[SupportsLessThanT]):
 	def sorted(self) -> LinkedList[SupportsLessThanT]:
 		"""Return a new linked list with the same nodes as self, but sorted
 		ascending on the node data."""
+		
+		merge_sort(copied_nodes := copy(list(self)))
 
 		return LinkedList([node.data
-		                   for node in merge_sorted(list(self))])
+		                   for node in copied_nodes])
 
 	def py_sorted(self) -> LinkedList[SupportsLessThanT]:
 		"""The fastest way to sort a linked list... Using Python sorted."""
@@ -292,34 +292,20 @@ class LinkedList(Generic[SupportsLessThanT]):
 if __name__ == "__main__":
 	
 	def main() -> None:
-		"""A few basci tests"""
+		"""A few basic tests"""
 		# for i in range(10):
 		for i in (10,):
 			lst = list(range(i))
 			shuffle(lst)
 			linked_list: LinkedList[int] = LinkedList(lst)
 			py_sorted_linked_list = LinkedList(sorted(lst))
-			print(f"BEFORE:")
-			print(f"{linked_list           = }")
-			print(f"{py_sorted_linked_list = }")
 			sorted_linked_list = LinkedList(sorted(lst))
-			print(f"AFTER sorted_linked_list = linked_list.sorted():")
-			print(f"{linked_list           = }")
-			print(f"{py_sorted_linked_list = }")
-			print(f"{sorted_linked_list    = }")
 			assert sorted_linked_list == py_sorted_linked_list
 
 			ms_linked_list = linked_list.merge_sort()
-			print(f"AFTER ms_linked_list = linked_list.merge_sort():")
-			print(f"{linked_list           = }")
-			print(f"{ms_linked_list        = }")
-			print(f"{py_sorted_linked_list = }")
 			assert ms_linked_list == py_sorted_linked_list
 
 			linked_list.sort()
-			print(f"AFTER linked_list.sort() (IN PLACE):")
-			print(f"{linked_list           = }")
-			print(f"{py_sorted_linked_list = }")
 			assert linked_list == py_sorted_linked_list
 
 	main()
@@ -327,7 +313,6 @@ if __name__ == "__main__":
 	OptionalLinkedList: TypeAlias = Optional[LinkedList]
 	SortFunc = Callable[[LinkedList], OptionalLinkedList]
 	Functions = tuple[SortFunc, str]
-	
 	
 	def timing(n: int) -> None:
 		"""Do some timing..."""
@@ -337,6 +322,7 @@ if __name__ == "__main__":
 			(lambda l: l.sorted(), "sorted"),
 			(lambda l: l.sort(), "sort"),
 			(lambda l: l.py_sorted(), "py_sort"))
+
 		for (f, name) in functions:
 			t = 0
 			for i in range(n):
@@ -349,12 +335,11 @@ if __name__ == "__main__":
 				result = f(unsorted_linked_list)
 				stop = time.perf_counter_ns()
 				if result:
-					# print(result)
 					assert result == sorted_linked_list
 				else:
-					# print(sorted_linked_list)
 					assert unsorted_linked_list == sorted_linked_list
 				t += stop - start
+
 			print(f"{name = :10s}: {t:15d}")
 
 	timing(100)
