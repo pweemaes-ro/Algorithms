@@ -44,9 +44,6 @@ def _naive_inversion_count(sequence: Sequence[SupportsLessThanT],
 	"""Only here for comparing with the MUCH faster inversion_count function.
 	Only suitable for relatively small sequences, time complexity = O(n^2)."""
 	
-	# Todo: Make it support ascending: bool=True param! Then test that
-	#  merge_sort returns the correct nr of inversions for both ascending and
-	#  descending merge_sorts.
 	inversions = 0
 	
 	if ascending:
@@ -57,7 +54,6 @@ def _naive_inversion_count(sequence: Sequence[SupportsLessThanT],
 	for i in range(len(sequence) - 1):
 		left = sequence[i]
 		for right in sequence[i + 1:]:
-			# if left > right:
 			if compare_operator(left, right):
 				inversions += 1
 	
@@ -76,9 +72,6 @@ def test_is_sorted() -> None:
 		assert not is_sorted(sorted(lst, reverse=True))
 
 
-# print("is_sorted_test completed without errors.")
-
-
 def test_inversion_count() -> None:
 	"""Test inversion count"""
 	
@@ -95,6 +88,5 @@ if __name__ == "__main__":
 		"""Some basic tests"""
 		test_inversion_count()
 		test_is_sorted()
-	
-	
+		
 	_main()
