@@ -123,6 +123,7 @@ def _worst_case() -> None:
 	
 	assert f"{n:.2f}" == f"{items_tested / nr_tests:.2f}"
 
+
 if __name__ == "__main__":
 
 	def _main() -> None:

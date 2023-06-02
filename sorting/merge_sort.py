@@ -1,7 +1,7 @@
 """In place merge sort based on 'Introduction to Algorithms'. """
 from collections.abc import MutableSequence
-from random import shuffle
-from typing import Optional
+from operator import lt, gt
+from random import randint
 
 from common import SupportsLessThanT
 
@@ -9,7 +9,8 @@ from common import SupportsLessThanT
 def _merge(sequence: MutableSequence[SupportsLessThanT],
            start: int,
            middle: int,
-           stop: int) -> int:
+           stop: int,
+           ascending: bool) -> int:
 	"""In place merge based on 'Introduction to Algorithms' Returns the nr of
 	inversions detected."""
 
@@ -20,10 +21,16 @@ def _merge(sequence: MutableSequence[SupportsLessThanT],
 	left = start
 	right = middle
 
+	if ascending:
+		operator = lt
+	else:
+		operator = gt
+	
 	_sorted = []
 	inversions = 0
+	
 	while left < middle and right < stop:
-		if sequence[right] < sequence[left]:
+		if operator(sequence[right], sequence[left]):
 			inversions += middle - left
 			_sorted.append(sequence[right])
 			right += 1
@@ -39,54 +46,56 @@ def _merge(sequence: MutableSequence[SupportsLessThanT],
 	return inversions
 
 
-def merge_sort(sequence: MutableSequence[SupportsLessThanT],
-               start: int = 0,
-               stop: Optional[int] = None) -> int:
-	"""The IN PLACE merge sort based upon 'Introduction to Algorithms'. THIS
-	algorithm now returns the nr of inversions in the sequence."""
-	
+def _merge_sort(sequence: MutableSequence[SupportsLessThanT],
+                start: int,
+                stop: int,
+                ascending: bool) -> int:
 	inversions = 0
 	
 	if stop is None:
 		stop = len(sequence)
 	
-	# sequences of 1 or 0 items are sorted already!
+	# sequences of 1 or 0 items are already sorted.
 	if stop - start <= 1:
 		return 0
 	
 	middle = (stop + start) // 2
 	
-	inversions += merge_sort(sequence, start, middle)
-	inversions += merge_sort(sequence, middle, stop)
-
-	inversions += _merge(sequence, start, middle, stop)
+	inversions += _merge_sort(sequence, start, middle, ascending)
+	inversions += _merge_sort(sequence, middle, stop, ascending)
+	
+	inversions += _merge(sequence, start, middle, stop, ascending)
 	return inversions
 
-# The test is "if start >= stop - 1" rather than “if start ≠ stop - 1.” If
-# merge_sort is called with start > stop - 1, then the subarray A[p : r] is
-# empty. Argue that as long as the initial call of merge_sort(A, 0, n) has
-# n ≥ 1, the test “if start != stop - 1” suffices to ensure that no recursive
-# call has start > stop - 1.
+
+def merge_sort(sequence: MutableSequence[SupportsLessThanT],
+               ascending: bool = True) -> int:
+	"""The IN PLACE merge sort based upon 'Introduction to Algorithms'. THIS
+	algorithm now returns the nr of inversions in the sequence."""
+
+	return _merge_sort(sequence, 0, len(sequence), ascending)
 
 
 def test_merge_sort() -> None:
-	"""Test the merge sort ('Introduction to Algorithm' version)."""
+	"""Test the merge sort algorithm"""
 	
 	for i in range(10):
-		lst = list(range(i))
-		shuffle(lst)
-		sorted_lst = sorted(lst)
-		merge_sort(lst)
-		assert sorted_lst == lst
+		for ascending in (True, False):
+			lst = [randint(-i, i) for _ in range(i)]
+			sorted_lst = sorted(lst, reverse=not ascending)
+			merge_sort(lst, ascending=ascending)
+			assert sorted_lst == lst
 
-	# print("merge_sort_test completed without errors.")
+
+def _test_merge_sort() -> None:
+	test_merge_sort()
+	print("merge_sort_test completed without errors.")
 
 	
 if __name__ == "__main__":
 	
 	def _main() -> None:
 		"""Some testing"""
-		test_merge_sort()
+		_test_merge_sort()
 
 	_main()
-	

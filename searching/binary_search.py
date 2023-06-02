@@ -95,6 +95,7 @@ def test_binary_search() -> None:
 		_test_binary_search_func(search_func)
 		# print(f"{search_func.__name__} completed without errors.")
 
+
 if __name__ == "__main__":
 	
 	def _main() -> None:

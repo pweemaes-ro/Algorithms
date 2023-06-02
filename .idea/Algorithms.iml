@@ -4,12 +4,15 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/searching" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sorting" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/mathstuff" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
       <excludeFolder url="file://$MODULE_DIR$/searching/.pytest_cache/v" />
       <excludeFolder url="file://$MODULE_DIR$/sorting/.pytest_cache/v" />
+      <excludeFolder url="file://$MODULE_DIR$/.pytest_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/sorting/.pytest_cache" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (Algorithms)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">

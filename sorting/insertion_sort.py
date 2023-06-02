@@ -77,15 +77,15 @@ def _move_to_place(sequence: MutableSequence[SupportsLessThanT],
 	sequence[: key_index]."""
 
 	key = sequence[key_index]
-	j = key_index - 1
-	while j >= 0 and compare_func(key, sequence[j]):
-		sequence[j + 1] = sequence[j]
+	
+	j = key_index
+	while j >= 1 and compare_func(key, sequence[j - 1]):
+		sequence[j] = sequence[j - 1]
 		j -= 1
-	sequence[j + 1] = key
+	sequence[j] = key
 
 
 def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
-                             n: int,
                              ascending: bool = True) -> None:
 	"""You can also think of insertion sort as a recursive algorithm. In order
 	to sort A[0: n], recursively sort the subarray A[0: n – 1] and then
@@ -97,32 +97,20 @@ def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
 		compare_func = _sort_descending
 	
 	def _insertion_sort_recursive(_sequence: MutableSequence[SupportsLessThanT],
-	                              _n: int) -> None:
-		_n -= 1
+	                              n: int) -> None:
+		n -= 1
 	
-		if _n < 1:
+		if n < 1:
 			return
 		
-		_insertion_sort_recursive(_sequence, _n)
+		_insertion_sort_recursive(_sequence, n)
 	
-		_move_to_place(_sequence, _n, compare_func)
+		_move_to_place(_sequence, n, compare_func)
 	
-	_insertion_sort_recursive(sequence, n)
-
-
-def _insertion_sort(_sequence: MutableSequence[SupportsLessThanT],
-                    _n: int,
-                    compare_func: Callable[[SupportsLessThanT,
-                                            SupportsLessThanT], bool]) -> None:
-	"""The actual insertion sort, called from insertion_sort (without leading
-	underscore)."""
-	
-	for i in range(1, _n):
-		_move_to_place(_sequence, i, compare_func)
+	_insertion_sort_recursive(sequence, len(sequence))
 
 
 def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
-                   n: int,
                    ascending: bool = True) -> None:
 	"""Sorts the first n items in sequence ascending (if increasing=True) else
 	descending."""
@@ -132,7 +120,14 @@ def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
 	else:
 		compare_func = _sort_descending
 	
-	_insertion_sort(sequence, n, compare_func)
+	def _insertion_sort(_sequence: MutableSequence[SupportsLessThanT]) -> None:
+		"""The actual insertion sort, called from insertion_sort (without leading
+		underscore)."""
+		
+		for i in range(1, len(_sequence)):
+			_move_to_place(_sequence, i, compare_func)
+	
+	_insertion_sort(sequence)
 
 
 class _SortFunc(Protocol):
@@ -141,21 +136,20 @@ class _SortFunc(Protocol):
 	
 	def __call__(self,
 	             sequence: MutableSequence[SupportsLessThanT],
-	             n: int,
 	             ascending: bool = True) -> None:
 		...
 
 
-def _test_insertion_sort_function(sort_function: _SortFunc) -> None:
+def _test_insertion_sort(sort_function: _SortFunc) -> None:
 	for i in range(250):
 		lst: list[int] = list(range(i))
 
 		shuffle(lst)
-		sort_function(lst, len(lst))
+		sort_function(lst)
 		assert is_sorted(lst)
 
 		shuffle(lst)
-		sort_function(lst, len(lst), ascending=False)
+		sort_function(lst, ascending=False)
 		assert is_sorted(lst, ascending=False)
 
 
@@ -163,8 +157,8 @@ def test_insertion_sort() -> None:
 	"""Driver code."""
 
 	for sort_function in (insertion_sort, insertion_sort_recursive):
-		_test_insertion_sort_function(sort_function)
-		# print(f"{sort_function.__name__} completed without errors.")
+		_test_insertion_sort(sort_function)
+
 
 if __name__ == "__main__":
 	
