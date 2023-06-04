@@ -19,7 +19,8 @@ def time_all() -> None:
 	                      ("merge_sort", "merge_sort", True),
 	                      ("insertion_sort", "insertion_sort", True),
 	                      ("bubble_sort", "bubble_sort", True),
-	                      ("selection_sort", "selection_sort", True))
+	                      ("selection_sort", "selection_sort", True),
+	                      ("tim_sort", "tim_sort", True))
 	i = 2000
 	lst = [random.randint(-i, i) for _ in range(i)]
 	shuffle(lst)

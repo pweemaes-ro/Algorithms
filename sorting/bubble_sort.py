@@ -1,6 +1,7 @@
 """Yet another sorting algorithm..."""
-from operator import lt, gt
-from collections.abc import MutableSequence
+from operator import lt, gt, attrgetter, itemgetter
+from collections.abc import MutableSequence, Callable
+from typing import Any, Optional
 
 from common import SupportsLessThanT
 
@@ -39,15 +40,21 @@ from common import SupportsLessThanT
 # 	# return array
 
 def bubble_sort(sequence: MutableSequence[SupportsLessThanT],
+                key: Optional[Callable[..., Any]] = None,
 				reverse: bool = False) -> None:
 	"""Inefficient but 'popular'... """
 
 	if reverse:
-		compare_operator = gt
-	else:
 		compare_operator = lt
+	else:
+		compare_operator = gt
 
 	n = len(sequence)
+
+	if not key:
+		def key(item: SupportsLessThanT) -> SupportsLessThanT:
+			"""Identity function..."""
+			return item
 
 	for i in range(n - 1):
 		
@@ -56,7 +63,13 @@ def bubble_sort(sequence: MutableSequence[SupportsLessThanT],
 		j = n - 1
 		
 		while j > i:
-			if compare_operator(sequence[j], sequence[j - 1]):
+			if key:
+				cmp_result = compare_operator(key(sequence[j - 1]),
+				                              key(sequence[j]))
+			else:
+				cmp_result = compare_operator(sequence[j - 1], sequence[j])
+
+			if cmp_result:
 				sequence[j], sequence[j - 1] = sequence[j - 1], sequence[j]
 				no_swaps = False
 			j -= 1
@@ -70,11 +83,50 @@ def test_bubble_sort() -> None:
 	
 	from random import randint
 	
-	for i in range(100):
-		lst = [randint(-1, i) for _ in range(i)]
-		sorted_lst = sorted(lst)
-		bubble_sort(lst)
-		assert sorted_lst == lst
+	def is_odd(x: int) -> int:
+		"""key function to sort by odd/even."""
+		return x % 2
+	
+	class Sortable:
+		"""A simple sortable class to test 'attrgetter' key."""
+		
+		def __init__(self, key_value: int):
+			self.key_value = key_value
+			self.derived = key_value % 3
+		
+		def __lt__(self, other: Any) -> bool:
+			if isinstance(other, type(self)):
+				return self.key_value < other.key_value
+			else:
+				raise NotImplementedError
+
+		def __repr__(self) -> str:
+			return f"({self.key_value}, {self.derived})"
+		
+	for i in range(20):
+		base_lst = [randint(-i, i) for _ in range(i)]
+		for reverse in (False, True):
+			for key in (None, abs, is_odd):
+				lst = list(base_lst)
+				sorted_lst = sorted(lst, reverse=reverse, key=key)
+				bubble_sort(lst, reverse=reverse, key=key)
+				assert sorted_lst == lst
+
+			attrgetter_key = attrgetter('derived')
+			attrgetter_list = [Sortable(randint(-i, i)) for _ in range(i)]
+			sorted_attrgetter_list = sorted(attrgetter_list,
+			                                reverse=reverse,
+			                                key=attrgetter_key)
+			bubble_sort(attrgetter_list, reverse=reverse, key=attrgetter_key)
+			assert sorted_attrgetter_list == attrgetter_list
+
+			itemgetter_key = itemgetter(1)
+			itemgetter_list = [(x := randint(-i, i), x % 3) for _ in range(i)]
+			sorted_itemgetter_list = sorted(itemgetter_list,
+			                                reverse=reverse,
+			                                key=itemgetter_key)
+			bubble_sort(itemgetter_list, reverse=reverse, key=itemgetter_key)
+			assert sorted_itemgetter_list == itemgetter_list
 
 
 if __name__ == "__main__":

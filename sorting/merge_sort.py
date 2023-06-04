@@ -6,11 +6,11 @@ from random import randint
 from common import SupportsLessThanT
 
 
-def _merge(sequence: MutableSequence[SupportsLessThanT],
-           start: int,
-           middle: int,
-           stop: int,
-           ascending: bool) -> int:
+def merge(sequence: MutableSequence[SupportsLessThanT],
+          start: int,
+          middle: int,
+          stop: int,
+          reverse: bool = False) -> int:
 	"""In place merge based on 'Introduction to Algorithms' Returns the nr of
 	inversions detected."""
 
@@ -21,10 +21,10 @@ def _merge(sequence: MutableSequence[SupportsLessThanT],
 	left = start
 	right = middle
 
-	if ascending:
-		operator = lt
-	else:
+	if reverse:
 		operator = gt
+	else:
+		operator = lt
 	
 	_sorted = []
 	inversions = 0
@@ -49,7 +49,7 @@ def _merge(sequence: MutableSequence[SupportsLessThanT],
 def _merge_sort(sequence: MutableSequence[SupportsLessThanT],
                 start: int,
                 stop: int,
-                ascending: bool) -> int:
+                reverse: bool) -> int:
 	inversions = 0
 	
 	if stop is None:
@@ -61,29 +61,30 @@ def _merge_sort(sequence: MutableSequence[SupportsLessThanT],
 	
 	middle = (stop + start) // 2
 	
-	inversions += _merge_sort(sequence, start, middle, ascending)
-	inversions += _merge_sort(sequence, middle, stop, ascending)
+	inversions += _merge_sort(sequence, start, middle, reverse)
+	inversions += _merge_sort(sequence, middle, stop, reverse)
 	
-	inversions += _merge(sequence, start, middle, stop, ascending)
+	inversions += merge(sequence, start, middle, stop, reverse)
 	return inversions
 
 
 def merge_sort(sequence: MutableSequence[SupportsLessThanT],
-               ascending: bool = True) -> int:
+               reverse: bool = False) -> int:
 	"""The IN PLACE merge sort based upon 'Introduction to Algorithms'. THIS
 	algorithm now returns the nr of inversions in the sequence."""
 
-	return _merge_sort(sequence, 0, len(sequence), ascending)
+	return _merge_sort(sequence, 0, len(sequence), reverse)
 
 
 def test_merge_sort() -> None:
 	"""Test the merge sort algorithm"""
 	
-	for i in range(10):
-		for ascending in (True, False):
-			lst = [randint(-i, i) for _ in range(i)]
-			sorted_lst = sorted(lst, reverse=not ascending)
-			merge_sort(lst, ascending=ascending)
+	for i in range(500):
+		base_lst = [randint(-i, i) for _ in range(i)]
+		for reverse in (False, True):
+			lst = list(base_lst)
+			sorted_lst = sorted(lst, reverse=reverse)
+			merge_sort(lst, reverse)
 			assert sorted_lst == lst
 
 

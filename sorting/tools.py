@@ -13,20 +13,20 @@ from merge_sort import merge_sort
 
 
 def is_sorted(sequence: Sequence[SupportsLessThanT],
-              ascending: bool = True) -> bool:
-	"""Return True if sequence is sorted (ascending), else False."""
+              reverse: bool = False) -> bool:
+	"""Return True if sequence is sorted, else False."""
 	
-	if ascending:
-		compare_operator = operator.le
-	else:
+	if reverse:
 		compare_operator = operator.ge
+	else:
+		compare_operator = operator.le
 	
 	return all(compare_operator(a, b)
 	           for (a, b) in pairwise(sequence))
 
 
 def inversion_count(sequence: Sequence[SupportsLessThanT],
-                    ascending: bool = True) -> int:
+                    reverse: bool = False) -> int:
 	"""Counts the nr of inversions in the sequence. A pair (i, j) is an
 	inversion if i < j and sequence[i] > sequence[j]. Notice that the merge
 	function checks for inversions (if sequence[left] < sequence[right]), so we
@@ -36,20 +36,20 @@ def inversion_count(sequence: Sequence[SupportsLessThanT],
 	copy_of_sequence: MutableSequence[SupportsLessThanT] = \
 		cast(MutableSequence[SupportsLessThanT], copy(sequence))
 	
-	return merge_sort(copy_of_sequence, ascending)
+	return merge_sort(copy_of_sequence, reverse)
 
 
 def _naive_inversion_count(sequence: Sequence[SupportsLessThanT],
-                           ascending: bool = True) -> int:
+                           reverse: bool = True) -> int:
 	"""Only here for comparing with the MUCH faster inversion_count function.
 	Only suitable for relatively small sequences, time complexity = O(n^2)."""
 	
 	inversions = 0
 	
-	if ascending:
-		compare_operator = gt
-	else:
+	if reverse:
 		compare_operator = lt
+	else:
+		compare_operator = gt
 		
 	for i in range(len(sequence) - 1):
 		left = sequence[i]
@@ -67,8 +67,8 @@ def test_is_sorted() -> None:
 		
 		assert is_sorted(lst) == (lst == sorted(lst))
 		assert is_sorted(sorted(lst))
-		assert not is_sorted(sorted(lst), ascending=False)
-		assert is_sorted(sorted(lst, reverse=True), ascending=False)
+		assert not is_sorted(sorted(lst), reverse=True)
+		assert is_sorted(sorted(lst, reverse=True), reverse=True)
 		assert not is_sorted(sorted(lst, reverse=True))
 
 
@@ -76,10 +76,10 @@ def test_inversion_count() -> None:
 	"""Test inversion count"""
 	
 	for i in range(100):
-		for ascending in (True, False):
+		for reverse in (False, True):
 			lst = [randint(-i, i) for _ in range(i)]
-			naive_count = _naive_inversion_count(lst, ascending)
-			normal_count = inversion_count(lst, ascending)
+			naive_count = _naive_inversion_count(lst, reverse)
+			normal_count = inversion_count(lst, reverse)
 			assert naive_count == normal_count
 	
 

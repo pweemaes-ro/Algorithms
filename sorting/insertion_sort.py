@@ -1,7 +1,7 @@
 """Not suitable for large sequences..."""
 from collections.abc import Callable
-from random import shuffle
-from typing import MutableSequence, Protocol
+from random import randint
+from typing import MutableSequence, Optional, Protocol, Any
 
 from common import SupportsLessThanT
 from tools import is_sorted
@@ -86,15 +86,15 @@ def _move_to_place(sequence: MutableSequence[SupportsLessThanT],
 
 
 def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
-                             ascending: bool = True) -> None:
+                             reverse: bool = False) -> None:
 	"""You can also think of insertion sort as a recursive algorithm. In order
 	to sort A[0: n], recursively sort the subarray A[0: n – 1] and then
 	insert A[n] into the sorted subarray A[0 : n – 1]."""
-	
-	if ascending:
-		compare_func = _sort_ascending
-	else:
+
+	if reverse:
 		compare_func = _sort_descending
+	else:
+		compare_func = _sort_ascending
 	
 	def _insertion_sort_recursive(_sequence: MutableSequence[SupportsLessThanT],
 	                              n: int) -> None:
@@ -110,54 +110,144 @@ def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
 	_insertion_sort_recursive(sequence, len(sequence))
 
 
+def _move_to_place_2(sequence: MutableSequence[SupportsLessThanT],
+                     key_index: int,
+                     compare_func: Callable[[SupportsLessThanT,
+                                             SupportsLessThanT], bool],
+                     start: int,
+                     stop: int,
+                     key: Callable[..., Any] = None) -> None:
+	"""Insert sequence[key_index] into the sorted subarray
+	sequence[: key_index]."""
+	
+	if stop is None:
+		stop = len(sequence)
+
+	key_value = sequence[key_index]
+	
+	j = key_index
+	while stop > j >= start + 1 and \
+		compare_func(key(key_value), key(sequence[j - 1])):
+			sequence[j] = sequence[j - 1]
+			j -= 1
+	
+	sequence[j] = key_value
+
+
 def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
-                   ascending: bool = True) -> None:
-	"""Sorts the first n items in sequence ascending (if increasing=True) else
-	descending."""
+                   start: int = 0,
+                   stop: Optional[int] = None,
+                   key: Optional[Callable[..., Any]] = None,
+                   reverse: bool = False) -> None:
+	"""New version that supports sorting from start to stop locations."""
 	
-	if ascending:
-		compare_func = _sort_ascending
-	else:
+	if stop is None:
+		stop = len(sequence)
+
+	if reverse:
 		compare_func = _sort_descending
-	
-	def _insertion_sort(_sequence: MutableSequence[SupportsLessThanT]) -> None:
-		"""The actual insertion sort, called from insertion_sort (without leading
-		underscore)."""
-		
-		for i in range(1, len(_sequence)):
-			_move_to_place(_sequence, i, compare_func)
-	
-	_insertion_sort(sequence)
+	else:
+		compare_func = _sort_ascending
+
+	if not key:
+		def key(item: Any) -> Any:
+			return item
+
+	for i in range(start, stop):
+		_move_to_place_2(sequence, i, compare_func, start, stop, key)
 
 
-class _SortFunc(Protocol):
-	"""The best way to deal with 'complicated' function arguments (with
-	default values)."""
+class InsertionSortProtocol(Protocol):
+	"""Protocol for specifying the signature of insertion_sort function."""
 	
 	def __call__(self,
 	             sequence: MutableSequence[SupportsLessThanT],
-	             ascending: bool = True) -> None:
+	             start: int = 0,
+	             stop: Optional[int] = None,
+	             key: Optional[Callable[..., Any]] = None,
+	             reverse: bool = False
+	             ) -> None:
 		...
 
 
-def _test_insertion_sort(sort_function: _SortFunc) -> None:
-	for i in range(250):
-		lst: list[int] = list(range(i))
+class InsertionSortRecursiveProtocol(Protocol):
+	"""Protocol for specifying the signature of insertion_sort_recursive
+	function."""
+	
+	def __call__(self,
+	             sequence: MutableSequence[SupportsLessThanT],
+	             reverse: bool = False) -> None:
+		...
 
-		shuffle(lst)
-		sort_function(lst)
-		assert is_sorted(lst)
 
-		shuffle(lst)
-		sort_function(lst, ascending=False)
-		assert is_sorted(lst, ascending=False)
-
+def _test_insertion_sort(sort_function: InsertionSortProtocol |
+                                        InsertionSortRecursiveProtocol) -> None:
+	"""Do some tests for the sort_function..."""
+	
+	def mod_3(x: int) -> int:
+		return x % 3
+	
+	for i in range(25):
+		base_lst = [randint(-i, i) for _ in range(i)]
+		for key in (None, abs, mod_3):
+			for reverse in (True, False):
+				lst = list(base_lst)
+				sort_function(lst, key=key, reverse=reverse)
+				py_sorted = sorted(lst, key=key, reverse=reverse)
+				assert py_sorted == lst
+				print(f"{reverse=}, {key=}, {lst}")
 
 def test_insertion_sort() -> None:
-	"""Driver code."""
+	"""Calls the real tests in a loop, with functions to test as argument..."""
 
-	for sort_function in (insertion_sort, insertion_sort_recursive):
-		_test_insertion_sort(sort_function)
+	# The signatures of the functions, and the protocols used to specify these
+	# signratures:
+	#
+	# def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
+	#                              reverse: bool = False) -> None:
+	#
+	# def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
+	#                    start: int = 0,
+	#                    stop: Optional[int] = None,
+	#                    reverse: bool = False) -> None:
+	#
+	# def _test_insertion_sort(sort_function: InsertionSortProtocol |
+	#                                         InsertionSortRecursiveProtocol) \
+	#       -> None:
+	#
+	# class InsertionSortProtocol(Protocol):
+	# 	"""Protocol for specifying the signature of insertion_sort function."""
+	#
+	# 	def __call__(self,
+	# 	             sequence: MutableSequence[SupportsLessThanT],
+	# 	             start: int = 0,
+	# 	             stop: Optional[int] = None,
+	# 	             reverse: bool = False
+	# 	             ) -> None:
+	# 		...
+	#
+	# class InsertionSortRecursiveProtocol(Protocol):
+	# 	"""Protocol for specifying the signature of insertion_sort_recursive
+	#      function."""
+	#
+	# 	def __call__(self,
+	# 	             sequence: MutableSequence[SupportsLessThanT],
+	# 	             reverse: bool = False) -> None:
+	# 		...
+	#
+
+	# for sort_function in (insertion_sort_recursive, insertion_sort):
+	# 	# Mypy reports in the next line:
+	# 	# error: Argument 1 to "_test_insertion_sort" has incompatible type
+	# 	# "function"; expected "Union[InsertionSortProtocol,
+	# 	# InsertionSortRecursiveProtocol]"
+	# 	_test_insertion_sort(sort_function)
+
+	# The following two lines are fine with Mypy! They are functionally
+	# equivalent with the for-loop above...
+	_test_insertion_sort(insertion_sort)
+	# _test_insertion_sort(insertion_sort_recursive)
+	# todo: Zet weer aan als t geimplementeerd is!
 
 
 if __name__ == "__main__":
