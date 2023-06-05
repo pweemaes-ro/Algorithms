@@ -1,14 +1,15 @@
 """Timsort is used internally for sorting in Python."""
 from collections.abc import MutableSequence
 from random import randint
+from typing import Optional, Callable, Any
 
 from common import SupportsLessThanT
 from insertion_sort import insertion_sort
 from merge_sort import merge
-from tools import is_sorted
 
 
 def tim_sort(sequence: MutableSequence[SupportsLessThanT],
+             key: Optional[Callable[..., Any]] = None,
              reverse: bool = False) -> None:
 	"""Split the sequence in segments of 32 (or 64?) bytes, sort these with
 	insertion_sort (which is fast for such small segments), then merge with the
@@ -21,6 +22,7 @@ def tim_sort(sequence: MutableSequence[SupportsLessThanT],
 		insertion_sort(sequence,
 		               start,
 		               min(start + segment_size, sequence_size),
+		               key,
 		               reverse=reverse)
 
 	while segment_size <= sequence_size:
@@ -29,17 +31,26 @@ def tim_sort(sequence: MutableSequence[SupportsLessThanT],
 			      start,
 			      start + segment_size,
 			      min(start + 2 * segment_size, sequence_size),
+			      key,
 			      reverse)
 		segment_size *= 2
 
 
 def test_tim_sort() -> None:
-	for i in range(500):
+
+	def mod_3(n: int) -> int:
+		"""Just a test key function """
+		
+		return n % 3
+	
+	for i in range(50):
 		base_lst = [randint(-i, i) for _ in range(i)]
-		for reverse in (False, True):
-			lst = list(base_lst)
-			tim_sort(lst, reverse)
-			assert is_sorted(lst, reverse)
+		for key in (None, abs, mod_3):
+			for reverse in (False, True):
+				lst = list(base_lst)
+				py_sort = sorted(lst, key=key, reverse=reverse)
+				tim_sort(lst, key=key, reverse=reverse)
+				assert py_sort == lst
 
 
 if __name__ == "__main__":

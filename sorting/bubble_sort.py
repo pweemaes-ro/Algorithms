@@ -1,9 +1,11 @@
 """Yet another sorting algorithm..."""
+from functools import lru_cache
 from operator import lt, gt, attrgetter, itemgetter
 from collections.abc import MutableSequence, Callable
 from typing import Any, Optional
 
 from common import SupportsLessThanT
+from key_functions import identity_key
 
 
 # def bubble_sort_rp(array):
@@ -43,7 +45,6 @@ def bubble_sort(sequence: MutableSequence[SupportsLessThanT],
                 key: Optional[Callable[..., Any]] = None,
 				reverse: bool = False) -> None:
 	"""Inefficient but 'popular'... """
-
 	if reverse:
 		compare_operator = lt
 	else:
@@ -51,11 +52,8 @@ def bubble_sort(sequence: MutableSequence[SupportsLessThanT],
 
 	n = len(sequence)
 
-	if not key:
-		def key(item: SupportsLessThanT) -> SupportsLessThanT:
-			"""Identity function..."""
-			return item
-
+	key = key or identity_key
+	
 	for i in range(n - 1):
 		
 		no_swaps = True
@@ -63,11 +61,8 @@ def bubble_sort(sequence: MutableSequence[SupportsLessThanT],
 		j = n - 1
 		
 		while j > i:
-			if key:
-				cmp_result = compare_operator(key(sequence[j - 1]),
-				                              key(sequence[j]))
-			else:
-				cmp_result = compare_operator(sequence[j - 1], sequence[j])
+			cmp_result = compare_operator(key(sequence[j - 1]),
+			                              key(sequence[j]))
 
 			if cmp_result:
 				sequence[j], sequence[j - 1] = sequence[j - 1], sequence[j]
@@ -83,6 +78,7 @@ def test_bubble_sort() -> None:
 	
 	from random import randint
 	
+	@lru_cache
 	def is_odd(x: int) -> int:
 		"""key function to sort by odd/even."""
 		return x % 2
@@ -127,6 +123,8 @@ def test_bubble_sort() -> None:
 			                                key=itemgetter_key)
 			bubble_sort(itemgetter_list, reverse=reverse, key=itemgetter_key)
 			assert sorted_itemgetter_list == itemgetter_list
+
+	print(identity_key.cache_info())
 
 
 if __name__ == "__main__":

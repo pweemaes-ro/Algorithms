@@ -7,10 +7,16 @@ from common import SupportsLessThanT
 from tools import is_sorted
 
 
+# TODO: All sorting functions should support an optional keyword argument
+#  key: Callable[..., Any] = None.
+
+
 def selection_sort(unsorted: MutableSequence[SupportsLessThanT],
                    reverse: bool = False) -> None:
 	"""In place sorting algorithm. Not very efficient, use merge sort!"""
 	
+	# Todo: Needs optional key function
+
 	n = len(unsorted)
 	
 	if reverse:

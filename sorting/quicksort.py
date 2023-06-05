@@ -7,6 +7,7 @@ from typing import TypeAlias, Callable
 from common import SupportsLessThanT, SupportsLessThanOrEqualT
 from tools import is_sorted
 
+
 PartitionFunction: TypeAlias = \
 	Callable[[MutableSequence[SupportsLessThanOrEqualT], int, int], int]
 
@@ -85,7 +86,9 @@ def quicksort_lomuto(sequence: MutableSequence[SupportsLessThanOrEqualT],
                      reverse: bool = False) -> None:
 	"""In place sorting using quicksort algorithm and Lomuto's partitioning
 	algorithm."""
-	
+
+	# Todo: Needs optional key function
+
 	_quicksort_lomuto(sequence, 0, len(sequence) - 1, reverse)
 	
 
@@ -109,6 +112,7 @@ def quicksort_hoare(sequence: MutableSequence[SupportsLessThanOrEqualT],
 	"""In place sorting using quicksort algorithm and Hoare's partitioning
 	algorithm."""
 
+	# Todo: Needs optional key function
 	_quicksort_hoare(sequence, 0, len(sequence) - 1, reverse)
 
 
@@ -130,6 +134,8 @@ def quicksort(sequence: Sequence[SupportsLessThanT],
               reverse: bool = False) -> list[SupportsLessThanT]:
 	"""Return a sorted list with the items of sequence (ergo: NOT in place)."""
 	
+	# Todo: Needs optional key function
+
 	if len(sequence) <= 1:
 		return list(sequence)
 

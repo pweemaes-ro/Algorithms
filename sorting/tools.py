@@ -16,6 +16,8 @@ def is_sorted(sequence: Sequence[SupportsLessThanT],
               reverse: bool = False) -> bool:
 	"""Return True if sequence is sorted, else False."""
 	
+	# Todo: Needs optional key function
+
 	if reverse:
 		compare_operator = operator.ge
 	else:
@@ -33,10 +35,12 @@ def inversion_count(sequence: Sequence[SupportsLessThanT],
 	can use merge_sort to count the nr of inversions recursively! For this to
 	work the sequence has to be merge-sorted, so we use a copy of sequence."""
 	
+	# Todo: Needs (really?) optional key function
+
 	copy_of_sequence: MutableSequence[SupportsLessThanT] = \
 		cast(MutableSequence[SupportsLessThanT], copy(sequence))
 	
-	return merge_sort(copy_of_sequence, reverse)
+	return merge_sort(copy_of_sequence, reverse=reverse)
 
 
 def _naive_inversion_count(sequence: Sequence[SupportsLessThanT],

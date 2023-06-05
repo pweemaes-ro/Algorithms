@@ -1,15 +1,18 @@
 """In place merge sort based on 'Introduction to Algorithms'. """
-from collections.abc import MutableSequence
+from collections.abc import MutableSequence, Callable
 from operator import lt, gt
 from random import randint
+from typing import Optional, Any
 
 from common import SupportsLessThanT
+from key_functions import identity_key
 
 
 def merge(sequence: MutableSequence[SupportsLessThanT],
           start: int,
           middle: int,
           stop: int,
+          key: Optional[Callable[..., Any]] = None,
           reverse: bool = False) -> int:
 	"""In place merge based on 'Introduction to Algorithms' Returns the nr of
 	inversions detected."""
@@ -26,11 +29,13 @@ def merge(sequence: MutableSequence[SupportsLessThanT],
 	else:
 		operator = lt
 	
+	key = key or identity_key
+
 	_sorted = []
 	inversions = 0
 	
 	while left < middle and right < stop:
-		if operator(sequence[right], sequence[left]):
+		if operator(key(sequence[right]), key(sequence[left])):
 			inversions += middle - left
 			_sorted.append(sequence[right])
 			right += 1
@@ -49,6 +54,7 @@ def merge(sequence: MutableSequence[SupportsLessThanT],
 def _merge_sort(sequence: MutableSequence[SupportsLessThanT],
                 start: int,
                 stop: int,
+                key: Callable[..., Any],
                 reverse: bool) -> int:
 	inversions = 0
 	
@@ -61,31 +67,40 @@ def _merge_sort(sequence: MutableSequence[SupportsLessThanT],
 	
 	middle = (stop + start) // 2
 	
-	inversions += _merge_sort(sequence, start, middle, reverse)
-	inversions += _merge_sort(sequence, middle, stop, reverse)
+	inversions += _merge_sort(sequence, start, middle, key, reverse)
+	inversions += _merge_sort(sequence, middle, stop, key, reverse)
 	
-	inversions += merge(sequence, start, middle, stop, reverse)
+	inversions += merge(sequence, start, middle, stop, key, reverse)
 	return inversions
 
 
 def merge_sort(sequence: MutableSequence[SupportsLessThanT],
+               key: Optional[Callable[..., Any]] = None,
                reverse: bool = False) -> int:
 	"""The IN PLACE merge sort based upon 'Introduction to Algorithms'. THIS
 	algorithm now returns the nr of inversions in the sequence."""
 
-	return _merge_sort(sequence, 0, len(sequence), reverse)
+	key = key or identity_key
+
+	return _merge_sort(sequence, 0, len(sequence), key=key, reverse=reverse)
 
 
 def test_merge_sort() -> None:
 	"""Test the merge sort algorithm"""
 	
+	def mod_3(n: int) -> int:
+		"""Just a test key function """
+		
+		return n % 3
+	
 	for i in range(500):
 		base_lst = [randint(-i, i) for _ in range(i)]
-		for reverse in (False, True):
-			lst = list(base_lst)
-			sorted_lst = sorted(lst, reverse=reverse)
-			merge_sort(lst, reverse)
-			assert sorted_lst == lst
+		for key in (None, abs, mod_3):
+			for reverse in (False, True):
+				lst = list(base_lst)
+				sorted_lst = sorted(lst, key=key, reverse=reverse)
+				merge_sort(lst, key, reverse)
+				assert sorted_lst == lst
 
 
 def _test_merge_sort() -> None:

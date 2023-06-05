@@ -4,7 +4,7 @@ from random import randint
 from typing import MutableSequence, Optional, Protocol, Any
 
 from common import SupportsLessThanT
-from tools import is_sorted
+from key_functions import identity_key
 
 
 # PSEUDOCODE (adapted for zero-based indexes):
@@ -69,23 +69,8 @@ def _sort_descending(key: SupportsLessThanT, value: SupportsLessThanT) -> bool:
 	return value < key
 
 
-def _move_to_place(sequence: MutableSequence[SupportsLessThanT],
-                   key_index: int,
-                   compare_func: Callable[[SupportsLessThanT,
-                                          SupportsLessThanT], bool]) -> None:
-	"""Insert sequence[key_index] into the sorted subarray
-	sequence[: key_index]."""
-
-	key = sequence[key_index]
-	
-	j = key_index
-	while j >= 1 and compare_func(key, sequence[j - 1]):
-		sequence[j] = sequence[j - 1]
-		j -= 1
-	sequence[j] = key
-
-
 def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
+                             key: Optional[Callable[..., Any]] = None,
                              reverse: bool = False) -> None:
 	"""You can also think of insertion sort as a recursive algorithm. In order
 	to sort A[0: n], recursively sort the subarray A[0: n – 1] and then
@@ -96,6 +81,8 @@ def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
 	else:
 		compare_func = _sort_ascending
 	
+	key = key or identity_key
+	
 	def _insertion_sort_recursive(_sequence: MutableSequence[SupportsLessThanT],
 	                              n: int) -> None:
 		n -= 1
@@ -105,27 +92,25 @@ def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
 		
 		_insertion_sort_recursive(_sequence, n)
 	
-		_move_to_place(_sequence, n, compare_func)
+		_move_to_place(_sequence, n, compare_func, 0, len(sequence), key)
 	
 	_insertion_sort_recursive(sequence, len(sequence))
 
 
-def _move_to_place_2(sequence: MutableSequence[SupportsLessThanT],
-                     key_index: int,
-                     compare_func: Callable[[SupportsLessThanT,
+def _move_to_place(sequence: MutableSequence[SupportsLessThanT],
+                   key_index: int,
+                   compare_func: Callable[[SupportsLessThanT,
                                              SupportsLessThanT], bool],
-                     start: int,
-                     stop: int,
-                     key: Callable[..., Any] = None) -> None:
+                   start: int,
+                   stop: int,
+                   key: Optional[Callable[..., Any]] = None) -> None:
 	"""Insert sequence[key_index] into the sorted subarray
 	sequence[: key_index]."""
-	
-	if stop is None:
-		stop = len(sequence)
 
+	key = key or identity_key
 	key_value = sequence[key_index]
-	
 	j = key_index
+
 	while stop > j >= start + 1 and \
 		compare_func(key(key_value), key(sequence[j - 1])):
 			sequence[j] = sequence[j - 1]
@@ -149,12 +134,10 @@ def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
 	else:
 		compare_func = _sort_ascending
 
-	if not key:
-		def key(item: Any) -> Any:
-			return item
+	key = key or identity_key
 
 	for i in range(start, stop):
-		_move_to_place_2(sequence, i, compare_func, start, stop, key)
+		_move_to_place(sequence, i, compare_func, start, stop, key)
 
 
 class InsertionSortProtocol(Protocol):
@@ -176,6 +159,7 @@ class InsertionSortRecursiveProtocol(Protocol):
 	
 	def __call__(self,
 	             sequence: MutableSequence[SupportsLessThanT],
+	             key: Optional[Callable[..., Any]] = None,
 	             reverse: bool = False) -> None:
 		...
 
@@ -185,6 +169,8 @@ def _test_insertion_sort(sort_function: InsertionSortProtocol |
 	"""Do some tests for the sort_function..."""
 	
 	def mod_3(x: int) -> int:
+		"""Just a test key function """
+		
 		return x % 3
 	
 	for i in range(25):
@@ -196,6 +182,7 @@ def _test_insertion_sort(sort_function: InsertionSortProtocol |
 				py_sorted = sorted(lst, key=key, reverse=reverse)
 				assert py_sorted == lst
 				print(f"{reverse=}, {key=}, {lst}")
+
 
 def test_insertion_sort() -> None:
 	"""Calls the real tests in a loop, with functions to test as argument..."""
@@ -246,8 +233,7 @@ def test_insertion_sort() -> None:
 	# The following two lines are fine with Mypy! They are functionally
 	# equivalent with the for-loop above...
 	_test_insertion_sort(insertion_sort)
-	# _test_insertion_sort(insertion_sort_recursive)
-	# todo: Zet weer aan als t geimplementeerd is!
+	_test_insertion_sort(insertion_sort_recursive)
 
 
 if __name__ == "__main__":
