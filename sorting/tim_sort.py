@@ -43,14 +43,13 @@ def test_tim_sort() -> None:
 		
 		return n % 3
 	
-	for i in range(50):
+	for i in range(500):
 		base_lst = [randint(-i, i) for _ in range(i)]
 		for key in (None, abs, mod_3):
 			for reverse in (False, True):
 				lst = list(base_lst)
-				py_sort = sorted(lst, key=key, reverse=reverse)
 				tim_sort(lst, key=key, reverse=reverse)
-				assert py_sort == lst
+				assert lst == sorted(list(base_lst), key=key, reverse=reverse)
 
 
 if __name__ == "__main__":

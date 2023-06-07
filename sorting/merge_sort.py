@@ -98,9 +98,9 @@ def test_merge_sort() -> None:
 		for key in (None, abs, mod_3):
 			for reverse in (False, True):
 				lst = list(base_lst)
-				sorted_lst = sorted(lst, key=key, reverse=reverse)
 				merge_sort(lst, key, reverse)
-				assert sorted_lst == lst
+				# Merge sort is stable sort
+				assert lst == sorted(lst, key=key, reverse=reverse)
 
 
 def _test_merge_sort() -> None:

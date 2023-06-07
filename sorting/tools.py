@@ -1,29 +1,32 @@
 """Some generic tools related to sorting."""
 
 import operator
-from collections.abc import Sequence, MutableSequence
+from collections.abc import Sequence, MutableSequence, Callable
 from copy import copy
 from itertools import pairwise
 from operator import lt, gt
 from random import shuffle, randint
-from typing import cast
+from typing import cast, Optional, Any
 
 from common import SupportsLessThanT
+from key_functions import identity_key
 from merge_sort import merge_sort
 
 
 def is_sorted(sequence: Sequence[SupportsLessThanT],
+              key: Optional[Callable[..., Any]] = None,
               reverse: bool = False) -> bool:
 	"""Return True if sequence is sorted, else False."""
 	
 	# Todo: Needs optional key function
-
+	key = key or identity_key
+	
 	if reverse:
 		compare_operator = operator.ge
 	else:
 		compare_operator = operator.le
 	
-	return all(compare_operator(a, b)
+	return all(compare_operator(key(a), key(b))
 	           for (a, b) in pairwise(sequence))
 
 

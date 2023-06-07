@@ -1,14 +1,14 @@
 """Some matrix functionality"""
 import time
 from collections import defaultdict
-from numbers import Number
+from collections.abc import Iterable, Sequence
 from typing import TypeAlias, TypeVar
 
-T = TypeVar("T", bound=Number)
+T = TypeVar("T", bound=complex)
 Matrix: TypeAlias = list[list[T]]
 
 
-def dot_product(v_1: list[T], v_2: list[T]) -> T:
+def dot_product(v_1: Sequence[T], v_2: Sequence[T]) -> T:
 	"""Return the dot-product of the two vectors."""
 	
 	assert len(v_1) == len(v_2), f"vectors {v_1} and {v_2} incompatible."
@@ -16,7 +16,7 @@ def dot_product(v_1: list[T], v_2: list[T]) -> T:
 	return sum(a * b for (a, b) in zip(v_1, v_2))
 
 
-def matrix_product(m_1: Matrix, m_2: Matrix) -> Matrix:
+def matrix_product(m_1: Matrix[T], m_2: Matrix[T]) -> Matrix[T]:
 	"""Return the product of the two matrices."""
 	
 	if len(m_1) == 0 or len(m_2) == 0 or len(m_1[0]) == 0 or len(m_2[0]) == 0:
@@ -66,7 +66,8 @@ if __name__ == "__main__":
 		timing_data: dict[int, int] = defaultdict(int)
 		for m in range(dim_start, dim_stop):
 			for n in range(dim_start, dim_stop):
-				m_1 = [[(c + 1) * (i + 1) for c in range(n)] for i in
+				m_1 = [[(c + 1) * (i + 1) for c in range(n)]
+				                       for i in
 				       range(m)]
 				for p in range(dim_start, dim_stop):
 					m_2 = [[(c + 1) * ((i + 1) * 2) for c in range(p)] for i in

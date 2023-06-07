@@ -173,15 +173,14 @@ def _test_insertion_sort(sort_function: InsertionSortProtocol |
 		
 		return x % 3
 	
-	for i in range(25):
+	for i in range(250):
 		base_lst = [randint(-i, i) for _ in range(i)]
 		for key in (None, abs, mod_3):
 			for reverse in (True, False):
 				lst = list(base_lst)
 				sort_function(lst, key=key, reverse=reverse)
-				py_sorted = sorted(lst, key=key, reverse=reverse)
-				assert py_sorted == lst
-				print(f"{reverse=}, {key=}, {lst}")
+				# insertion_sort and insertion_sort_recursive are stable!
+				assert lst == sorted(lst, key=key, reverse=reverse)
 
 
 def test_insertion_sort() -> None:

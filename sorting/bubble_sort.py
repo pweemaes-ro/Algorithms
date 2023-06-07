@@ -44,7 +44,7 @@ from key_functions import identity_key
 def bubble_sort(sequence: MutableSequence[SupportsLessThanT],
                 key: Optional[Callable[..., Any]] = None,
 				reverse: bool = False) -> None:
-	"""Inefficient but 'popular'... """
+	"""Inefficient but 'popular'... And stable. """
 	if reverse:
 		compare_operator = lt
 	else:
@@ -99,32 +99,30 @@ def test_bubble_sort() -> None:
 		def __repr__(self) -> str:
 			return f"({self.key_value}, {self.derived})"
 		
-	for i in range(20):
+	for i in range(100):
 		base_lst = [randint(-i, i) for _ in range(i)]
 		for reverse in (False, True):
 			for key in (None, abs, is_odd):
 				lst = list(base_lst)
-				sorted_lst = sorted(lst, reverse=reverse, key=key)
 				bubble_sort(lst, reverse=reverse, key=key)
-				assert sorted_lst == lst
+				# bubble_sort is stable sort!
+				assert lst == sorted(lst, reverse=reverse, key=key)
 
 			attrgetter_key = attrgetter('derived')
 			attrgetter_list = [Sortable(randint(-i, i)) for _ in range(i)]
-			sorted_attrgetter_list = sorted(attrgetter_list,
-			                                reverse=reverse,
-			                                key=attrgetter_key)
 			bubble_sort(attrgetter_list, reverse=reverse, key=attrgetter_key)
-			assert sorted_attrgetter_list == attrgetter_list
+			# bubble_sort is stable sort!
+			assert attrgetter_list == sorted(attrgetter_list,
+			                                 reverse=reverse,
+			                                 key=attrgetter_key)
 
 			itemgetter_key = itemgetter(1)
 			itemgetter_list = [(x := randint(-i, i), x % 3) for _ in range(i)]
-			sorted_itemgetter_list = sorted(itemgetter_list,
-			                                reverse=reverse,
-			                                key=itemgetter_key)
 			bubble_sort(itemgetter_list, reverse=reverse, key=itemgetter_key)
-			assert sorted_itemgetter_list == itemgetter_list
-
-	print(identity_key.cache_info())
+			# bubble_sort is stable sort!
+			assert itemgetter_list == sorted(itemgetter_list,
+			                                 reverse=reverse,
+			                                 key=itemgetter_key)
 
 
 if __name__ == "__main__":
