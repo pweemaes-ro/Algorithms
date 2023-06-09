@@ -13,7 +13,7 @@ def test_is_sorted() -> None:
 		
 		return n % 3
 	
-	for i in range(10, 100):
+	for i in range(100):
 		for reverse in (False, True):
 			for key in (None, abs, mod_3):
 				base_list = [randint(-i, i) for _ in range(i)]

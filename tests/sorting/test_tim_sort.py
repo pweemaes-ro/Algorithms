@@ -5,6 +5,8 @@ from tim_sort import tim_sort
 
 
 def test_tim_sort() -> None:
+	"""Test Tim Peters' tim_sort"""
+	
 	def mod_3(n: int) -> int:
 		"""Just a test key function """
 		
@@ -16,4 +18,5 @@ def test_tim_sort() -> None:
 			for reverse in (False, True):
 				lst = list(base_lst)
 				tim_sort(lst, key=key, reverse=reverse)
+				# tim_sort is STABLE sort...
 				assert lst == sorted(list(base_lst), key=key, reverse=reverse)

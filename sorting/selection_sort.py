@@ -1,13 +1,14 @@
 """Another sorting algorithm..."""
 from collections.abc import MutableSequence, Callable
 from operator import gt, lt
-from typing import Optional, Any
+from typing import Optional
 
 from common import SupportsLessThanT
 
 
 def selection_sort(sequence: MutableSequence[SupportsLessThanT],
-                   key: Optional[Callable[..., Any]] = None,
+                   key: Optional[Callable[[SupportsLessThanT],
+                                 SupportsLessThanT]] = None,
                    reverse: bool = False) -> None:
 	"""In place NON-STABLE sorting algorithm. Not very efficient, use merge
 	sort!"""
@@ -23,10 +24,8 @@ def selection_sort(sequence: MutableSequence[SupportsLessThanT],
 	else:
 		compare_operator = lt
 	
-	keys: MutableSequence[SupportsLessThanT]
-
 	if key:
-		keys = [*map(key, sequence)]
+		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
 	else:
 		keys = sequence
 	

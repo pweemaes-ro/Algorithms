@@ -2,7 +2,7 @@
 from collections.abc import Sequence, MutableSequence
 from operator import lt, gt, ge, le
 from random import randint
-from typing import Callable, Any, Optional
+from typing import Callable, Optional
 
 from common import SupportsLessThanT
 
@@ -56,15 +56,14 @@ def _quicksort_lomuto(sequence: MutableSequence[SupportsLessThanT],
 
 
 def quicksort_lomuto(sequence: MutableSequence[SupportsLessThanT],
-                     key: Optional[Callable[..., Any]] = None,
+                     key: Optional[Callable[[SupportsLessThanT],
+                                   SupportsLessThanT]] = None,
                      reverse: bool = False) -> None:
 	"""In place sorting using quicksort algorithm and Lomuto's partitioning
 	algorithm."""
 
-	keys: MutableSequence[SupportsLessThanT]
-
 	if key:
-		keys = [*map(key, sequence)]
+		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
 	else:
 		keys = sequence
 	
@@ -106,7 +105,6 @@ def _partition_hoare(sequence: MutableSequence[SupportsLessThanT],
 		
 		if keys is not sequence:
 			keys[left], keys[right] = keys[right], keys[left]
-		
 		sequence[left], sequence[right] = sequence[right], sequence[left]
 		
 		# Move both pointers to the next item
@@ -130,25 +128,25 @@ def _quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
 
 
 def quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
-                    key: Optional[Callable[..., Any]] = None,
+                    key: Optional[Callable[[SupportsLessThanT],
+                                  SupportsLessThanT]] = None,
                     reverse: bool = False) \
 	-> None:
 	"""In place sorting using quicksort algorithm and Hoare's partitioning
 	algorithm."""
-	
-	keys: MutableSequence[SupportsLessThanT]
 
 	if key:
-		keys = [*map(key, sequence)]
+		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
 	else:
 		keys = sequence
 
 	_quicksort_hoare(sequence, 0, len(sequence) - 1, keys, reverse)
 
 
-def _quicksort(
-	sequence_and_keys: Sequence[tuple[SupportsLessThanT, SupportsLessThanT]],
-	reverse: bool) -> list[tuple[SupportsLessThanT, SupportsLessThanT]]:
+def _quicksort(sequence_and_keys:
+				Sequence[tuple[SupportsLessThanT, SupportsLessThanT]],
+               reverse: bool) \
+	-> list[tuple[SupportsLessThanT, SupportsLessThanT]]:
 
 	if len(sequence_and_keys) <= 1:
 		return list(sequence_and_keys)
@@ -177,19 +175,17 @@ def _quicksort(
 
 
 def quicksort(sequence: Sequence[SupportsLessThanT],
-              key: Optional[Callable[..., Any]] = None,
+              key: Optional[Callable[[SupportsLessThanT],
+                            SupportsLessThanT]] = None,
               reverse: bool = False) -> list[SupportsLessThanT]:
 	"""Return a sorted list with the items of sequence (ergo: NOT in place)."""
 	
-	keys: Sequence[SupportsLessThanT]
-	
 	if key:
-		keys = [*map(key, sequence)]
+		keys: Sequence[SupportsLessThanT] = [*map(key, sequence)]
 	else:
 		keys = sequence
 
-	return [item_and_key[0]
-	        for item_and_key in
-	        _quicksort([(item, key)
-	                    for (item, key) in zip(sequence, keys)],
-	                    reverse)]
+	items_and_keys = [(item, key) for (item, key) in zip(sequence, keys)]
+	sorted_items_and_keys = _quicksort(items_and_keys, reverse)
+	
+	return [item_and_key[0] for item_and_key in sorted_items_and_keys]

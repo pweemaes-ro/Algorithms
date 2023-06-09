@@ -23,4 +23,3 @@ def test_selection_sort() -> None:
 				# selection_sort is NOT stable.
 				assert is_sorted(lst, key, reverse), f"{key=}, {reverse=}, " \
 				                                     f"{base_list=}."
-				# assert sorted(base_list, key=key, reverse=reverse) == lst

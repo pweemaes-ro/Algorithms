@@ -1,8 +1,8 @@
 """Test(s) for bubble_sort."""
-
+from __future__ import annotations
 from functools import lru_cache
 from operator import attrgetter, itemgetter
-from typing import Any
+from random import randint
 
 from bubble_sort import bubble_sort
 
@@ -10,11 +10,10 @@ from bubble_sort import bubble_sort
 def test_bubble_sort() -> None:
 	"""Test the merge sort ('Introduction to Algorithm' version)."""
 	
-	from random import randint
-	
 	@lru_cache
 	def is_odd(x: int) -> int:
 		"""key function to sort by odd/even."""
+		
 		return x % 2
 	
 	class Sortable:
@@ -24,7 +23,7 @@ def test_bubble_sort() -> None:
 			self.key_value = key_value
 			self.derived = key_value % 3
 		
-		def __lt__(self, other: Any) -> bool:
+		def __lt__(self, other: Sortable) -> bool:
 			if isinstance(other, type(self)):
 				return self.key_value < other.key_value
 			else:
@@ -44,16 +43,16 @@ def test_bubble_sort() -> None:
 			
 			attrgetter_key = attrgetter('derived')
 			attrgetter_list = [Sortable(randint(-i, i)) for _ in range(i)]
-			bubble_sort(attrgetter_list, reverse=reverse, key=attrgetter_key)
+			bubble_sort(attrgetter_list, key=attrgetter_key, reverse=reverse)
 			# bubble_sort is stable sort!
 			assert attrgetter_list == sorted(attrgetter_list,
-			                                 reverse=reverse,
-			                                 key=attrgetter_key)
+			                                 key=attrgetter_key,
+			                                 reverse=reverse)
 			
 			itemgetter_key = itemgetter(1)
 			itemgetter_list = [(x := randint(-i, i), x % 3) for _ in range(i)]
-			bubble_sort(itemgetter_list, reverse=reverse, key=itemgetter_key)
+			bubble_sort(itemgetter_list, key=itemgetter_key, reverse=reverse)
 			# bubble_sort is stable sort!
 			assert itemgetter_list == sorted(itemgetter_list,
-			                                 reverse=reverse,
-			                                 key=itemgetter_key)
+			                                 key=itemgetter_key,
+			                                 reverse=reverse)

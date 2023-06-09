@@ -5,14 +5,15 @@ from collections.abc import Sequence, MutableSequence, Callable
 from copy import copy
 from itertools import pairwise
 from operator import lt, gt
-from typing import cast, Optional, Any
+from typing import cast, Optional
 
 from common import SupportsLessThanT
 from merge_sort import merge_sort
 
 
 def is_sorted(sequence: Sequence[SupportsLessThanT],
-              key: Optional[Callable[..., Any]] = None,
+              key: Optional[Callable[[SupportsLessThanT],
+                            SupportsLessThanT]] = None,
               reverse: bool = False) -> bool:
 	"""Return True if sequence is sorted, else False."""
 
@@ -20,16 +21,13 @@ def is_sorted(sequence: Sequence[SupportsLessThanT],
 		compare_operator = operator.ge
 	else:
 		compare_operator = operator.le
-	
-	keys: Sequence[SupportsLessThanT]
 
 	if key:
-		keys = [*map(key, sequence)]
+		keys: Sequence[SupportsLessThanT] = [*map(key, sequence)]
 	else:
 		keys = sequence
 		
-	return all(compare_operator(a, b)
-	           for (a, b) in pairwise(keys))
+	return all(compare_operator(a, b) for (a, b) in pairwise(keys))
 
 
 def inversion_count(sequence: Sequence[SupportsLessThanT],

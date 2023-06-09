@@ -2,7 +2,7 @@
 
 from collections.abc import MutableSequence, Callable
 from random import randint
-from typing import Protocol, Optional, Any
+from typing import Protocol, Optional
 
 from common import SupportsLessThanT
 from insertion_sort import insertion_sort, insertion_sort_recursive
@@ -15,7 +15,8 @@ class InsertionSortProtocol(Protocol):
 	             sequence: MutableSequence[SupportsLessThanT],
 	             start: int = 0,
 	             stop: Optional[int] = None,
-	             key: Optional[Callable[..., Any]] = None,
+	             key: Optional[Callable[[SupportsLessThanT],
+	                           SupportsLessThanT]] = None,
 	             reverse: bool = False
 	             ) -> None:
 		...
@@ -27,7 +28,8 @@ class InsertionSortRecursiveProtocol(Protocol):
 	
 	def __call__(self,
 	             sequence: MutableSequence[SupportsLessThanT],
-	             key: Optional[Callable[..., Any]] = None,
+	             key: Optional[Callable[[SupportsLessThanT],
+	                           SupportsLessThanT]] = None,
 	             reverse: bool = False) -> None:
 		...
 
@@ -54,50 +56,7 @@ def _test_insertion_sort(sort_function: InsertionSortProtocol |
 def test_insertion_sort() -> None:
 	"""Calls the real tests in a loop, with functions to test as argument..."""
 
-	# The signatures of the functions, and the protocols used to specify these
-	# signratures:
-	#
-	# def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
-	#                              reverse: bool = False) -> None:
-	#
-	# def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
-	#                    start: int = 0,
-	#                    stop: Optional[int] = None,
-	#                    reverse: bool = False) -> None:
-	#
-	# def _test_insertion_sort(sort_function: InsertionSortProtocol |
-	#                                         InsertionSortRecursiveProtocol) \
-	#       -> None:
-	#
-	# class InsertionSortProtocol(Protocol):
-	# 	"""Protocol for specifying the signature of insertion_sort function."""
-	#
-	# 	def __call__(self,
-	# 	             sequence: MutableSequence[SupportsLessThanT],
-	# 	             start: int = 0,
-	# 	             stop: Optional[int] = None,
-	# 	             reverse: bool = False
-	# 	             ) -> None:
-	# 		...
-	#
-	# class InsertionSortRecursiveProtocol(Protocol):
-	# 	"""Protocol for specifying the signature of insertion_sort_recursive
-	#      function."""
-	#
-	# 	def __call__(self,
-	# 	             sequence: MutableSequence[SupportsLessThanT],
-	# 	             reverse: bool = False) -> None:
-	# 		...
-	#
-
 	# for sort_function in (insertion_sort_recursive, insertion_sort):
-	# 	# Mypy reports in the next line:
-	# 	# error: Argument 1 to "_test_insertion_sort" has incompatible type
-	# 	# "function"; expected "Union[InsertionSortProtocol,
-	# 	# InsertionSortRecursiveProtocol]"
 	# 	_test_insertion_sort(sort_function)
-
-	# The following two lines are fine with Mypy! They are functionally
-	# equivalent with the for-loop above...
 	_test_insertion_sort(insertion_sort)
 	_test_insertion_sort(insertion_sort_recursive)
