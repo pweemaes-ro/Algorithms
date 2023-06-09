@@ -1,7 +1,7 @@
 """Some matrix functionality"""
 import time
 from collections import defaultdict
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from typing import TypeAlias, TypeVar
 
 T = TypeVar("T", bound=complex)

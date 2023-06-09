@@ -54,8 +54,9 @@ def _naive_sum_finder(integers: Sequence[int], target_sum: int) \
 	pairs = set()
 
 	for i in range(len(integers)):
+		complement = target_sum - integers[i]
 		for j in range(i+1, len(integers)):
-			if integers[i] + integers[j] == target_sum:
+			if integers[j] == complement:
 				pairs.add((integers[i], integers[j]))
 	
 	return pairs

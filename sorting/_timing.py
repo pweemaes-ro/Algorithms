@@ -17,7 +17,7 @@ def time_all() -> None:
 	"""Run and report minimum execution times for all sorting algoriths."""
 	
 	sorting_algorithms = (("sorted", "", False),
-	                      ("bubble_sort","bubble_sort", True),
+	                      ("bubble_sort", "bubble_sort", True),
 	                      ("insertion_sort", "insertion_sort", True),
 	                      ("insertion_sort_recursive", "insertion_sort", True),
 	                      ("merge_sort", "merge_sort", True),
@@ -31,7 +31,8 @@ def time_all() -> None:
 	shuffle(lst)
 	print(f"Sorting a list of {i} random (unsorted) integers in interval [{-i},"
 	      f" {i}].")
-	print(f"NO key function, NO reverse flag set.")
+	print(f"NO key, NO reverse.")
+	
 	@dataclass
 	class TimingResults:
 		"""Store results per function, so we can sort before displaying!"""

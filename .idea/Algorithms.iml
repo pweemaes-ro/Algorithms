@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/searching" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sorting" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/mathstuff" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
       <excludeFolder url="file://$MODULE_DIR$/searching/.pytest_cache/v" />

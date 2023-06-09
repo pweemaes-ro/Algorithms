@@ -17,7 +17,7 @@ def tim_sort(sequence: MutableSequence[SupportsLessThanT],
 
 	sequence_size = len(sequence)
 	segment_size = 16
-
+	
 	for start in range(0, sequence_size, segment_size):
 		insertion_sort(sequence,
 		               start,
@@ -25,13 +25,20 @@ def tim_sort(sequence: MutableSequence[SupportsLessThanT],
 		               key,
 		               reverse=reverse)
 
+	keys: MutableSequence[SupportsLessThanT]
+
+	if key:
+		keys = [*map(key, sequence)]
+	else:
+		keys = sequence
+
 	while segment_size <= sequence_size:
 		for start in range(0, sequence_size, segment_size * 2):
 			merge(sequence,
 			      start,
 			      start + segment_size,
 			      min(start + 2 * segment_size, sequence_size),
-			      key,
+			      keys,
 			      reverse)
 		segment_size *= 2
 
@@ -40,21 +47,23 @@ def test_tim_sort() -> None:
 
 	def mod_3(n: int) -> int:
 		"""Just a test key function """
-		
+
 		return n % 3
-	
+
 	for i in range(500):
 		base_lst = [randint(-i, i) for _ in range(i)]
 		for key in (None, abs, mod_3):
 			for reverse in (False, True):
 				lst = list(base_lst)
 				tim_sort(lst, key=key, reverse=reverse)
-				assert lst == sorted(list(base_lst), key=key, reverse=reverse)
+				py_sorted = sorted(list(base_lst), key=key, reverse=reverse)
+				assert lst == py_sorted, \
+					f"{base_lst=}, {key=}, {reverse=}, {py_sorted =}, {lst=}"
 
 
 if __name__ == "__main__":
- 
+
 	def _main() -> None:
 		test_tim_sort()
-	
+
 	_main()

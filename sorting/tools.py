@@ -5,11 +5,9 @@ from collections.abc import Sequence, MutableSequence, Callable
 from copy import copy
 from itertools import pairwise
 from operator import lt, gt
-from random import shuffle, randint
 from typing import cast, Optional, Any
 
 from common import SupportsLessThanT
-from key_functions import identity_key
 from merge_sort import merge_sort
 
 
@@ -17,17 +15,21 @@ def is_sorted(sequence: Sequence[SupportsLessThanT],
               key: Optional[Callable[..., Any]] = None,
               reverse: bool = False) -> bool:
 	"""Return True if sequence is sorted, else False."""
-	
-	# Todo: Needs optional key function
-	key = key or identity_key
-	
+
 	if reverse:
 		compare_operator = operator.ge
 	else:
 		compare_operator = operator.le
 	
-	return all(compare_operator(key(a), key(b))
-	           for (a, b) in pairwise(sequence))
+	keys: Sequence[SupportsLessThanT]
+
+	if key:
+		keys = [*map(key, sequence)]
+	else:
+		keys = sequence
+		
+	return all(compare_operator(a, b)
+	           for (a, b) in pairwise(keys))
 
 
 def inversion_count(sequence: Sequence[SupportsLessThanT],
@@ -65,35 +67,3 @@ def _naive_inversion_count(sequence: Sequence[SupportsLessThanT],
 				inversions += 1
 	
 	return inversions
-
-
-def test_is_sorted() -> None:
-	for i in range(10, 100):
-		lst = list(range(i))
-		shuffle(lst)
-		
-		assert is_sorted(lst) == (lst == sorted(lst))
-		assert is_sorted(sorted(lst))
-		assert not is_sorted(sorted(lst), reverse=True)
-		assert is_sorted(sorted(lst, reverse=True), reverse=True)
-		assert not is_sorted(sorted(lst, reverse=True))
-
-
-def test_inversion_count() -> None:
-	"""Test inversion count"""
-	
-	for i in range(100):
-		for reverse in (False, True):
-			lst = [randint(-i, i) for _ in range(i)]
-			naive_count = _naive_inversion_count(lst, reverse)
-			normal_count = inversion_count(lst, reverse)
-			assert naive_count == normal_count
-	
-
-if __name__ == "__main__":
-	def _main() -> None:
-		"""Some basic tests"""
-		test_inversion_count()
-		test_is_sorted()
-		
-	_main()

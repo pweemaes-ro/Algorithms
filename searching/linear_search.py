@@ -73,20 +73,20 @@ def _linear_search(sequence: Sequence[T], n: int, key: T) -> Optional[int]:
 # is executed exactly 1 time, so best case is constant time O(1).
 
 
-def test_linear_search() -> None:
-	"""Test binary_search function."""
-	
-	for i in range(10):
-		data = list(range(i))
-		for target in data:
-			assert linear_search(data, target) == target
-		
-		assert linear_search([], 1) is None
-		assert linear_search([], 0) is None
-		
-		not_in_data = (-1, i)
-		for target in not_in_data:
-			assert linear_search(data, target) is None
+# def test_linear_search() -> None:
+# 	"""Test binary_search function."""
+#
+# 	for i in range(10):
+# 		data = list(range(i))
+# 		for target in data:
+# 			assert linear_search(data, target) == target
+#
+# 		assert linear_search([], 1) is None
+# 		assert linear_search([], 0) is None
+#
+# 		not_in_data = (-1, i)
+# 		for target in not_in_data:
+# 			assert linear_search(data, target) is None
 
 
 def _average_case() -> None:
@@ -104,7 +104,8 @@ def _average_case() -> None:
 		shuffle(lst)
 		_linear_search(lst, n, 0)
 	
-	assert f"{(n + 1) / 2:.2f}" == f"{items_tested / nr_tests:.2f}"
+	print(f"Average Case result: {items_tested / nr_tests: 05.2f}, "
+	      f"expected: {(n + 1) / 2 = :05.2f}")
 
 
 def _worst_case() -> None:
@@ -121,15 +122,15 @@ def _worst_case() -> None:
 		shuffle(lst)
 		_linear_search(lst, n, -1)
 	
-	assert f"{n:.2f}" == f"{items_tested / nr_tests:.2f}"
+	print(f"Worst Case result  : {items_tested / nr_tests :05.2f}, "
+	      f"expected: {n = :05.2f}")
 
 
 if __name__ == "__main__":
 
 	def _main() -> None:
-		"""Do some basic tests..."""
-		test_linear_search()
-		# _average_case()
-		# _worst_case()
+		"""Show that the answers above are correct..."""
+		_average_case()
+		_worst_case()
 	
 	_main()

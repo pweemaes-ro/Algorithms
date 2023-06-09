@@ -1,13 +1,14 @@
 """Some math stuff"""
+import math
 from collections.abc import Sequence
 from functools import partial, lru_cache
 from math import copysign, sqrt
-from random import shuffle
+from random import randint
 from time import perf_counter_ns
-from typing import Optional
+from typing import Optional, Any
 
 
-def horner_polynomial(coefficients: Sequence[float], x: float) -> float:
+def horner_polynomial(coefficients: Sequence[Any], x: Any) -> Any:
 	"""Calculates the value of a polynomial
 	P(x) = a_n x^n + a_{n-1} x^{n-1} + ... + a_2 x^2 + a_1 x + a_0
 	     = a_0 + a_1 x + a_2 x^2 + ... + a_{n-1} x^{n-1} + a_n x^n
@@ -18,7 +19,7 @@ def horner_polynomial(coefficients: Sequence[float], x: float) -> float:
 	This algorithm is O(n) and much faster than naive calculation (even when
 	caching)."""
 	
-	p = 0.0
+	p = 0
 	for coefficient in coefficients:
 		p = coefficient + x * p
 	return p
@@ -33,7 +34,7 @@ sign = partial(copysign, 1)
 
 
 @lru_cache(maxsize=None)
-def _power_pos_exp(base: complex, exponent: complex) -> complex:
+def _power_pos_exp(base: Any, exponent: Any) -> Any:
 	"""Cached power functon for POSITIVE or ZERO exponents only! Is much faster
 	than math.pow() function, but much slower than horner() function."""
 
@@ -41,12 +42,13 @@ def _power_pos_exp(base: complex, exponent: complex) -> complex:
 		raise ValueError(f"exponent must be >= 0, not {exponent}")
 
 	if abs(exponent) <= 1.0:
-		return base ** exponent
+		return pow(base, exponent)
+		# return base ** exponent
 		
 	return base * _power_pos_exp(base, exponent - 1)
 
 
-def _power(base: complex, exponent: complex) -> complex:
+def _power(base: Any, exponent: Any) -> Any:
 	"""(Indirectly cached) power function. Delegates to _power_pos_exp function
 	(which is a cached power function) by modifying base and exponent if
 	exponent is negative, using base^(-exponent) = (1/base)^exponent."""
@@ -66,7 +68,7 @@ def _power(base: complex, exponent: complex) -> complex:
 	return _power_pos_exp(base, exponent)
 	
 
-def _naive_polynomial(coefficients: Sequence[int], x: float) -> complex:
+def _naive_polynomial(coefficients: Sequence[Any], x: Any) -> Any:
 	"""Naive way of calculating a polynomial...
 	P_n(x) = a_n x^n + a_{n-1} x^{n-1} + ... + a_2 x^2 + a_1 x + a_0
 	Coefficients must be in order: a_n, a_{n-1}, ..., a_0, that is, if the
@@ -75,13 +77,13 @@ def _naive_polynomial(coefficients: Sequence[int], x: float) -> complex:
 	of coefficient * (x ** i) is much higher than coeeficient + (x * p)."""
 	
 	return sum(coefficient * _power(base=x, exponent=i)
-	           for (i, coefficient) in enumerate(reversed(coefficients)))
+	                 for (i, coefficient) in enumerate(reversed(coefficients)))
 
 
 def get_real_roots(a: float, b: float, c: float) \
 	-> tuple[Optional[float], Optional[float]]:
-	"""Return the real roots of ax^2 + bx + c. If the discriminant is 0,
-	the two roots are the same. If the discriminant is negative, no real roots
+	"""Return the real roots of ax^2 + bx + c. If the discriminant is 0, the
+	two roots are the same. If the discriminant is negative, no real roots
 	exist (both are set to None)."""
 	
 	discriminant = b ** 2 - (4 * a * c)
@@ -104,20 +106,24 @@ if __name__ == "__main__":
 		"""Do some timing..."""
 		
 		h_total = n_total = 0
-		abs_extreme = 500
-		for x in range(-abs_extreme, abs_extreme):
-			coefficients = list(range(x))
-			shuffle(coefficients)
-			
+
+		for i in range(50):
+			coefficients = [randint(-i, i) for _ in range(i)]
+
 			h_start = perf_counter_ns()
-			_ = horner_polynomial(coefficients, x)
+			horner = horner_polynomial(coefficients, i)
 			h_stop = perf_counter_ns()
 			h_total += h_stop - h_start
 		
 			n_start = perf_counter_ns()
-			_ = _naive_polynomial(coefficients, x)
+			naive = _naive_polynomial(coefficients, i)
 			n_stop = perf_counter_ns()
 			n_total += n_stop - n_start
+		
+			print(horner)
+			print(naive)
+			assert math.isclose(horner, naive, rel_tol=0.001)
+			assert horner == naive  # all results are ints
 
 		print(f"{h_total = :12d}")
 		print(f"{n_total = :12d}")
