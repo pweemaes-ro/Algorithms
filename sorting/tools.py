@@ -39,8 +39,6 @@ def inversion_count(sequence: Sequence[SupportsLessThanT],
 	function checks for inversions (if sequence[left] < sequence[right]), so we
 	can use merge_sort to count the nr of inversions recursively! For this to
 	work the sequence has to be merge-sorted, so we use a copy of sequence."""
-	
-	# Todo: Needs (really?) optional key function
 
 	copy_of_sequence: MutableSequence[SupportsLessThanT] = \
 		cast(MutableSequence[SupportsLessThanT], copy(sequence))

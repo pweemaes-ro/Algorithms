@@ -41,37 +41,6 @@ def _partition_lomuto(sequence: MutableSequence[SupportsLessThanT],
 	return pivot_idx
 
 
-# def _partition_lomuto_old(sequence: MutableSequence[SupportsLessThanT],
-#                       low: int,
-#                       high: int,
-#                       key: Callable[..., Any],
-#                       reverse: bool = False) -> int:
-# 	"""In place partition the sequence using the item at the last position as
-# 	pivot. Return the pivot index."""
-#
-# 	pivot_key = key(sequence[high])  # last item is the pivot
-# 	pivot_idx = low         # destination for swapping items <= pivot to.
-#
-# 	if reverse:
-# 		compare_operator = ge
-# 	else:
-# 		compare_operator = le
-#
-# 	for j in range(low, high):
-# 		# items that go in the higher (right) part need no processing since at
-# 		# the end we put the pivot after the last item in the lower (left)
-# 		# part, thereby putting items > pivot in the higher (right) part.
-# 		# if key(sequence[j]) <= pivot_key:
-# 		if compare_operator(key(sequence[j]), pivot_key):
-# 			sequence[pivot_idx], sequence[j] = sequence[j], sequence[pivot_idx]
-# 			pivot_idx += 1
-#
-# 	# Swap the pivot to its destination.
-# 	sequence[pivot_idx], sequence[high] = sequence[high], sequence[pivot_idx]
-#
-# 	return pivot_idx
-
-
 def _quicksort_lomuto(sequence: MutableSequence[SupportsLessThanT],
                       low: int,
                       high: int,
@@ -86,20 +55,6 @@ def _quicksort_lomuto(sequence: MutableSequence[SupportsLessThanT],
 	_quicksort_lomuto(sequence, p + 1, high, keys, reverse)
 
 
-# def _quicksort_lomuto_old(sequence: MutableSequence[SupportsLessThanT],
-#                       low: int,
-#                       high: int,
-#                       key: Callable[..., Any],
-#                       reverse: bool = False) -> None:
-# 	if low >= high:
-# 		return
-#
-# 	p = _partition_lomuto(sequence, low, high, key, reverse)
-#
-# 	_quicksort_lomuto(sequence, low, p - 1, key, reverse)
-# 	_quicksort_lomuto(sequence, p + 1, high, key, reverse)
-
-
 def quicksort_lomuto(sequence: MutableSequence[SupportsLessThanT],
                      key: Optional[Callable[..., Any]] = None,
                      reverse: bool = False) -> None:
@@ -107,6 +62,7 @@ def quicksort_lomuto(sequence: MutableSequence[SupportsLessThanT],
 	algorithm."""
 
 	keys: MutableSequence[SupportsLessThanT]
+
 	if key:
 		keys = [*map(key, sequence)]
 	else:
@@ -137,12 +93,10 @@ def _partition_hoare(sequence: MutableSequence[SupportsLessThanT],
 	
 	while True:
 		# Find leftmost element greater than or equal to pivot
-		# while sequence[left] < pivot:
 		while left_before_pivot(keys[left], pivot_key):
 			left += 1
 	
 		# Find rightmost element smaller than or equal to pivot
-		# while sequence[right] > pivot:
 		while right_before_pivot(keys[right], pivot_key):
 			right -= 1
 		
@@ -160,47 +114,6 @@ def _partition_hoare(sequence: MutableSequence[SupportsLessThanT],
 		right -= 1
 
 
-# def _partition_hoare_old(sequence: MutableSequence[SupportsLessThanT],
-#                      low: int,
-#                      high: int,
-#                      key: Callable[..., Any],
-#                      reverse: bool = False) -> int:
-# 	"""In place partition the sequence, using te item in the middle as pivot.
-# 	Return the pivot index."""
-#
-# 	pivot = key(sequence[low])
-#
-# 	left = low
-# 	right = high
-#
-# 	if reverse:
-# 		left_before_pivot = gt
-# 		right_before_pivot = lt
-# 	else:
-# 		left_before_pivot = lt
-# 		right_before_pivot = gt
-#
-# 	while True:
-# 		# Find leftmost element greater than or equal to pivot
-# 		# while sequence[left] < pivot:
-# 		while left_before_pivot(key(sequence[left]), pivot):
-# 			left += 1
-#
-# 		# Find rightmost element smaller than or equal to pivot
-# 		# while sequence[right] > pivot:
-# 		while right_before_pivot(key(sequence[right]), pivot):
-# 			right -= 1
-#
-# 		# If two pointers met...
-# 		if left >= right:
-# 			return right
-#
-# 		sequence[left], sequence[right] = sequence[right], sequence[left]
-# 		# Move both pointers to the next item
-# 		left += 1
-# 		right -= 1
-
-
 def _quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
                      low: int,
                      high: int,
@@ -209,28 +122,11 @@ def _quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
 	
 	if low >= high:
 		return
-	
-	# for item, key in zip(sequence, keys):
-		# assert (item, key) in original_sequence_keys
-		
+
 	p = _partition_hoare(sequence, low, high, keys, reverse)
 	
 	_quicksort_hoare(sequence, low, p, keys, reverse)  # pivot pos included!
 	_quicksort_hoare(sequence, p + 1, high, keys, reverse)
-
-
-# def _quicksort_hoare_old(sequence: MutableSequence[SupportsLessThanT],
-#                      low: int,
-#                      high: int,
-#                      key: Callable[..., Any],
-#                      reverse: bool = False) -> None:
-# 	if low >= high:
-# 		return
-#
-# 	p = _partition_hoare_old(sequence, low, high, key, reverse)
-#
-# 	_quicksort_hoare_old(sequence, low, p, key, reverse)  # pivot pos included!
-# 	_quicksort_hoare_old(sequence, p + 1, high, key, reverse)
 
 
 def quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
@@ -248,20 +144,6 @@ def quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
 		keys = sequence
 
 	_quicksort_hoare(sequence, 0, len(sequence) - 1, keys, reverse)
-
-
-# def quicksort_hoare_old(sequence: MutableSequence[SupportsLessThanT],
-#                     key: Optional[Callable[..., Any]] = None,
-#                     reverse: bool = False) \
-# 	-> None:
-# 	"""In place sorting using quicksort algorithm and Hoare's partitioning
-# 	algorithm."""
-#
-# 	# Todo: Make stable sorter? Forget it...
-#
-# 	key = key or identity_key
-#
-# 	_quicksort_hoare_old(sequence, 0, len(sequence) - 1, key, reverse)
 
 
 def _quicksort(
