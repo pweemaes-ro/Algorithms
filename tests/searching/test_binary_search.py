@@ -44,5 +44,9 @@ def _test_binary_search_func(search_func: _SearchFunc) -> None:
 def test_binary_search() -> None:
 	"""Test binary_search function."""
 	
-	for search_func in (binary_search, binary_search_recursive):
-		_test_binary_search_func(search_func)
+	_test_binary_search_func(binary_search)
+
+def test_binary_search_recusive() -> None:
+	"""Test binary_search_recursive function."""
+
+	_test_binary_search_func(binary_search_recursive)

@@ -68,8 +68,7 @@ def test_find_summing_pairs() -> None:
 	for i in range(500):
 		set_of_ints = set((randint(-i, i) for _ in range(i)))
 		target_sum = i // 2 * choice([-1, 1])
-		sorted_pairs = \
-			sorted(get_summing_pairs(set_of_ints, target_sum))
+		sorted_pairs = sorted(get_summing_pairs(set_of_ints, target_sum))
 		sorted_naive_pairs = \
 			sorted(_naive_sum_finder(list(set_of_ints), target_sum))
 		assert sorted_pairs == sorted_naive_pairs

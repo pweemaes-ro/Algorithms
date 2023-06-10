@@ -6,7 +6,7 @@ from linear_search import linear_search
 def test_linear_search() -> None:
 	"""Test binary_search function."""
 	
-	for i in range(10):
+	for i in range(100):
 		data = list(range(i))
 		for target in data:
 			assert linear_search(data, target) == target

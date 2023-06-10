@@ -6,13 +6,15 @@ from common import SupportsLessThanT
 
 
 def binary_search(data: Sequence[SupportsLessThanT],
-                  target: SupportsLessThanT) -> Optional[int]:
+                  target: SupportsLessThanT,
+                  first: int = 0,
+                  last: Optional[int] = None) -> Optional[int]:
 	"""Return the 0-based index of *target* in *data* if *target* found in
 	*data*, else return *None*. The *data* is assumed to be sorted in ascending
 	order!"""
 	
-	first = 0
-	last = len(data) - 1
+	if last is None:
+		last = len(data) - 1
 	
 	while last - first >= 0:
 		mid_point = (last + first) // 2
@@ -27,78 +29,25 @@ def binary_search(data: Sequence[SupportsLessThanT],
 	return None
 
 
-def _binary_search_recursive(data: Sequence[SupportsLessThanT],
-                             target: SupportsLessThanT,
-                             first: int,
-                             last: int) -> Optional[int]:
-	if last - first < 0:
-		return None
-	else:
-		mid_point = (last + first) // 2
-		mid_value = data[mid_point]
-		if mid_value == target:
-			return mid_point
-		elif target < mid_value:
-			return _binary_search_recursive(data, target, first, mid_point - 1)
-		else:
-			return _binary_search_recursive(data, target, mid_point + 1, last)
-
-
 def binary_search_recursive(data: Sequence[SupportsLessThanT],
-                            target: SupportsLessThanT) -> Optional[int]:
+                            target: SupportsLessThanT,
+                            first: int = 0,
+                            last: Optional[int] = None) -> Optional[int]:
 	"""Return the 0-based index of *target* in *data* if *target* found in
 	*data*, else return *None*. The *data* is assumed to be sorted in ascending
 	order!"""
-
-	return _binary_search_recursive(data, target, 0, len(data) - 1)
 	
+	if last is None:
+		last = len(data) - 1
 
-# class _SearchFunc(Protocol):
-# 	"""The best way to deal with 'complicated' function arguments (with
-# 	default values). """
-#
-# 	def __call__(self,
-# 	             data: Sequence[SupportsLessThanT],
-# 	             target: SupportsLessThanT) -> Optional[int]:
-# 		...
-#
-# 	# Use __name__ property if you want to print the search function's name
-# 	# (no need for @abstractmethod, other than that PyCharm complains if
-# 	# not... Mypy is happy without it).
-# 	# @property
-# 	# @abstractmethod
-# 	# def __name__(self) -> str:
-# 	# 	...
-#
-#
-# def _test_binary_search_func(search_func: _SearchFunc) \
-# 	-> None:
-# 	"""Test the given function"""
-#
-# 	for i in range(10):
-# 		data = list(range(i))
-# 		for target in data:
-# 			assert search_func(data, target) == target
-#
-# 		assert search_func([], 1) is None
-# 		assert search_func([], 0) is None
-#
-# 		not_in_data = (-1, i)
-# 		for target in not_in_data:
-# 			assert search_func(data, target) is None
-#
-#
-# def test_binary_search() -> None:
-# 	"""Test binary_search function."""
-#
-# 	for search_func in (binary_search, binary_search_recursive):
-# 		_test_binary_search_func(search_func)
-# 		# print(f"{search_func.__name__} completed without errors.")
-#
-#
-# if __name__ == "__main__":
-#
-# 	def _main() -> None:
-# 		test_binary_search()
-#
-# 	_main()
+	if last - first < 0:
+		return None
+
+	mid_point = (last + first) // 2
+	mid_value = data[mid_point]
+	if mid_value == target:
+		return mid_point
+	elif target < mid_value:
+		return binary_search_recursive(data, target, first, mid_point - 1)
+	else:
+		return binary_search_recursive(data, target, mid_point + 1, last)
