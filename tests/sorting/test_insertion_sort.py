@@ -1,6 +1,6 @@
 """Test(s) for insertion_sort and insertion_sort_recursive."""
 
-from collections.abc import MutableSequence, Callable
+from collections.abc import Callable
 from random import randint
 from typing import Protocol, Optional
 
@@ -12,7 +12,7 @@ class InsertionSortProtocol(Protocol):
 	"""Protocol for specifying the signature of insertion_sort function."""
 	
 	def __call__(self,
-	             sequence: MutableSequence[SupportsLessThanT],
+	             sequence: list[SupportsLessThanT],
 	             start: int = 0,
 	             stop: Optional[int] = None,
 	             key: Optional[Callable[[SupportsLessThanT],
@@ -27,7 +27,7 @@ class InsertionSortRecursiveProtocol(Protocol):
 	function."""
 	
 	def __call__(self,
-	             sequence: MutableSequence[SupportsLessThanT],
+	             sequence: list[SupportsLessThanT],
 	             key: Optional[Callable[[SupportsLessThanT],
 	                           SupportsLessThanT]] = None,
 	             reverse: bool = False) -> None:

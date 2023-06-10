@@ -55,7 +55,7 @@ def _quicksort_lomuto(sequence: MutableSequence[SupportsLessThanT],
 	_quicksort_lomuto(sequence, p + 1, high, keys, reverse)
 
 
-def quicksort_lomuto(sequence: MutableSequence[SupportsLessThanT],
+def quicksort_lomuto(sequence: list[SupportsLessThanT],
                      key: Optional[Callable[[SupportsLessThanT],
                                    SupportsLessThanT]] = None,
                      reverse: bool = False) -> None:
@@ -63,7 +63,7 @@ def quicksort_lomuto(sequence: MutableSequence[SupportsLessThanT],
 	algorithm."""
 
 	if key:
-		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
 	
@@ -127,7 +127,7 @@ def _quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
 	_quicksort_hoare(sequence, p + 1, high, keys, reverse)
 
 
-def quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
+def quicksort_hoare(sequence: list[SupportsLessThanT],
                     key: Optional[Callable[[SupportsLessThanT],
                                   SupportsLessThanT]] = None,
                     reverse: bool = False) \
@@ -136,7 +136,7 @@ def quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
 	algorithm."""
 
 	if key:
-		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
 
@@ -174,14 +174,14 @@ def _quicksort(sequence_and_keys:
 		+ _quicksort(larger, reverse)
 
 
-def quicksort(sequence: Sequence[SupportsLessThanT],
+def quicksort(sequence: list[SupportsLessThanT],
               key: Optional[Callable[[SupportsLessThanT],
                             SupportsLessThanT]] = None,
               reverse: bool = False) -> list[SupportsLessThanT]:
 	"""Return a sorted list with the items of sequence (ergo: NOT in place)."""
 	
 	if key:
-		keys: Sequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
 

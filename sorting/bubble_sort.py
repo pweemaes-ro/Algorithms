@@ -1,12 +1,11 @@
 """Yet another sorting algorithm..."""
+from collections.abc import Callable
 from operator import lt, gt
-from collections.abc import MutableSequence, Callable
 from typing import Optional
-
 from common import SupportsLessThanT
 
 
-def bubble_sort(sequence: MutableSequence[SupportsLessThanT],
+def bubble_sort(sequence: list[SupportsLessThanT],
                 key: Optional[Callable[[SupportsLessThanT],
                               SupportsLessThanT]] = None,
 				reverse: bool = False) -> None:
@@ -20,7 +19,7 @@ def bubble_sort(sequence: MutableSequence[SupportsLessThanT],
 	n = len(sequence)
 
 	if key:
-		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
 

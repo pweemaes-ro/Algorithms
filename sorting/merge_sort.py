@@ -72,7 +72,7 @@ def _merge_sort(sequence: MutableSequence[SupportsLessThanT],
 	return inversions
 
 
-def merge_sort(sequence: MutableSequence[SupportsLessThanT],
+def merge_sort(sequence: list[SupportsLessThanT],
                key: Optional[Callable[[SupportsLessThanT],
                              SupportsLessThanT]] = None,
                reverse: bool = False) -> int:
@@ -80,7 +80,7 @@ def merge_sort(sequence: MutableSequence[SupportsLessThanT],
 	algorithm now returns the nr of inversions in the sequence."""
 
 	if key:
-		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
 		

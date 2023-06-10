@@ -1,4 +1,5 @@
 """Common stuff..."""
+from collections.abc import Callable
 from typing import Protocol, Any, TypeVar
 
 
@@ -10,3 +11,6 @@ class SupportsLessThan(Protocol):
 
 
 SupportsLessThanT = TypeVar("SupportsLessThanT", bound=SupportsLessThan)
+
+
+KeyFunction = Callable[[SupportsLessThanT], SupportsLessThanT]

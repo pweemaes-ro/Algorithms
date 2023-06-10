@@ -1,5 +1,4 @@
 """Timsort is used internally for sorting in Python."""
-from collections.abc import MutableSequence
 from typing import Optional, Callable
 
 from common import SupportsLessThanT
@@ -7,7 +6,7 @@ from insertion_sort import _insertion_sort
 from merge_sort import _merge
 
 
-def tim_sort(sequence: MutableSequence[SupportsLessThanT],
+def tim_sort(sequence: list[SupportsLessThanT],
              key: Optional[Callable[[SupportsLessThanT],
                            SupportsLessThanT]] = None,
              reverse: bool = False) -> None:
@@ -16,7 +15,7 @@ def tim_sort(sequence: MutableSequence[SupportsLessThanT],
 	same merge as used in merge_sort."""
 
 	if key:
-		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
 	

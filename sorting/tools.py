@@ -1,17 +1,17 @@
 """Some generic tools related to sorting."""
 
 import operator
-from collections.abc import Sequence, MutableSequence, Callable
+from collections.abc import Sequence, Callable
 from copy import copy
 from itertools import pairwise
 from operator import lt, gt
-from typing import cast, Optional
+from typing import Optional
 
 from common import SupportsLessThanT
 from merge_sort import merge_sort
 
 
-def is_sorted(sequence: Sequence[SupportsLessThanT],
+def is_sorted(sequence: list[SupportsLessThanT],
               key: Optional[Callable[[SupportsLessThanT],
                             SupportsLessThanT]] = None,
               reverse: bool = False) -> bool:
@@ -23,14 +23,14 @@ def is_sorted(sequence: Sequence[SupportsLessThanT],
 		compare_operator = operator.le
 
 	if key:
-		keys: Sequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
 		
 	return all(compare_operator(a, b) for (a, b) in pairwise(keys))
 
 
-def inversion_count(sequence: Sequence[SupportsLessThanT],
+def inversion_count(sequence: list[SupportsLessThanT],
                     reverse: bool = False) -> int:
 	"""Counts the nr of inversions in the sequence. A pair (i, j) is an
 	inversion if i < j and sequence[i] > sequence[j]. Notice that the merge
@@ -38,8 +38,7 @@ def inversion_count(sequence: Sequence[SupportsLessThanT],
 	can use merge_sort to count the nr of inversions recursively! For this to
 	work the sequence has to be merge-sorted, so we use a copy of sequence."""
 
-	copy_of_sequence: MutableSequence[SupportsLessThanT] = \
-		cast(MutableSequence[SupportsLessThanT], copy(sequence))
+	copy_of_sequence = copy(sequence)
 	
 	return merge_sort(copy_of_sequence, reverse=reverse)
 

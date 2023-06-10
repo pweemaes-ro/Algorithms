@@ -4,7 +4,7 @@ from collections import defaultdict
 from collections.abc import Sequence
 from typing import TypeAlias, TypeVar
 
-T = TypeVar("T", bound=complex)
+T = TypeVar("T", int, float, complex)
 Matrix: TypeAlias = list[list[T]]
 
 
@@ -82,4 +82,4 @@ if __name__ == "__main__":
 		print(tuple(sorted(timing_data.items())))
 	
 	main()
-	# timing_tests()
+	timing_tests()

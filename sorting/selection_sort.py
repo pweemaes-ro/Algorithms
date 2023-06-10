@@ -1,12 +1,12 @@
 """Another sorting algorithm..."""
-from collections.abc import MutableSequence, Callable
+from collections.abc import Callable
 from operator import gt, lt
 from typing import Optional
 
 from common import SupportsLessThanT
 
 
-def selection_sort(sequence: MutableSequence[SupportsLessThanT],
+def selection_sort(sequence: list[SupportsLessThanT],
                    key: Optional[Callable[[SupportsLessThanT],
                                  SupportsLessThanT]] = None,
                    reverse: bool = False) -> None:
@@ -25,7 +25,7 @@ def selection_sort(sequence: MutableSequence[SupportsLessThanT],
 		compare_operator = lt
 	
 	if key:
-		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
 	

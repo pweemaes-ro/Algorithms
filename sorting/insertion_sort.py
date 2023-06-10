@@ -6,7 +6,7 @@ from typing import MutableSequence, Optional
 from common import SupportsLessThanT
 
 
-def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
+def insertion_sort_recursive(sequence: list[SupportsLessThanT],
                              key: Optional[Callable[[SupportsLessThanT],
                                            SupportsLessThanT]] = None,
                              reverse: bool = False) -> None:
@@ -20,10 +20,10 @@ def insertion_sort_recursive(sequence: MutableSequence[SupportsLessThanT],
 		compare_func = lt
 
 	if key:
-		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
-	
+
 	def _insertion_sort_recursive(_sequence: MutableSequence[SupportsLessThanT],
 	                              n: int) -> None:
 		n -= 1
@@ -61,7 +61,7 @@ def _move_to_place(sequence: MutableSequence[SupportsLessThanT],
 		keys[j] = key
 
 
-def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
+def insertion_sort(sequence: list[SupportsLessThanT],
                    start: int = 0,
                    stop: Optional[int] = None,
                    key: Optional[Callable[[SupportsLessThanT],
@@ -72,20 +72,12 @@ def insertion_sort(sequence: MutableSequence[SupportsLessThanT],
 	if stop is None:
 		stop = len(sequence)
 
-	# if reverse:
-	# 	compare_func = gt
-	# else:
-	# 	compare_func = lt
-
 	if key:
-		keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
+		keys = [*map(key, sequence)]
 	else:
 		keys = sequence
 
 	_insertion_sort(sequence, start, stop, keys, reverse)
-
-	# for i in range(start, stop):
-	# 	_move_to_place(sequence, i, compare_func, start, stop, keys)
 
 
 def _insertion_sort(sequence: MutableSequence[SupportsLessThanT],
@@ -102,11 +94,6 @@ def _insertion_sort(sequence: MutableSequence[SupportsLessThanT],
 		compare_func = gt
 	else:
 		compare_func = lt
-
-	# if key:
-	# 	keys: MutableSequence[SupportsLessThanT] = [*map(key, sequence)]
-	# else:
-	# 	keys = sequence
 
 	for i in range(start, stop):
 		_move_to_place(sequence, i, compare_func, start, stop, keys)
