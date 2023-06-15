@@ -10,8 +10,13 @@ def selection_sort(sequence: list[SupportsLessThanT],
                    key: Optional[Callable[[SupportsLessThanT],
                                  SupportsLessThanT]] = None,
                    reverse: bool = False) -> None:
-	"""In place NON-STABLE sorting algorithm. Not very efficient, use merge
-	sort!"""
+	"""Selection Sort is a simple and intuitive sorting algorithm that works by
+	repeatedly selecting the minimum element from an unsorted subarray and
+	swapping it with the element at the beginning of the subarray. This process
+	is repeated for each element in the array until the entire array is sorted.
+	At each iteration, Selection Sort finds the minimum element in the
+	remaining unsorted subarray and swaps it with the element at the current
+	index."""
 	
 	# Note: selection_sort is UNSTABLE by nature, and attempting to make it
 	# stable would transform it in another sorting algorithm (say, insertion

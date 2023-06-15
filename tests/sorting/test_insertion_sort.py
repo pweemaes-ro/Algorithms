@@ -59,4 +59,7 @@ def test_insertion_sort() -> None:
 	# for sort_function in (insertion_sort_recursive, insertion_sort):
 	# 	_test_insertion_sort(sort_function)
 	_test_insertion_sort(insertion_sort)
+
+
+def test_insertion_sort_recursive() -> None:
 	_test_insertion_sort(insertion_sort_recursive)

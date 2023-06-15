@@ -1,6 +1,4 @@
 """Some stuff I cannot dump anywhere else..."""
-from collections.abc import Sequence
-from random import randint, choice
 
 
 def has_summing_pair(integers: set[int], target_sum: int) -> bool:
@@ -44,7 +42,9 @@ def _summing_pairs(integers: set[int],
 	return pairs
 
 
-def _naive_sum_finder(integers: Sequence[int], target_sum: int) \
+# def _naive_sum_finder(integers: Sequence[int], target_sum: int) \
+# 	-> set[tuple[int, int]]:
+def _naive_sum_finder(ints: set[int], target_sum: int) \
 	-> set[tuple[int, int]]:
 	"""Naive and slow algorithm (just here for testing purposes). Return a set
 	of all tuples(a, b) from integers s.t. a + b = target_sum and also a < b
@@ -52,7 +52,7 @@ def _naive_sum_finder(integers: Sequence[int], target_sum: int) \
 	(b, a) is NOT in the set."""
 
 	pairs = set()
-
+	integers = list(ints)
 	for i in range(len(integers)):
 		complement = target_sum - integers[i]
 		for j in range(i+1, len(integers)):
@@ -60,19 +60,3 @@ def _naive_sum_finder(integers: Sequence[int], target_sum: int) \
 				pairs.add((integers[i], integers[j]))
 	
 	return pairs
-
-
-def test_find_summing_pairs() -> None:
-	"""Some basic tests..."""
-	
-	for i in range(500):
-		set_of_ints = set((randint(-i, i) for _ in range(i)))
-		target_sum = i // 2 * choice([-1, 1])
-		sorted_pairs = sorted(get_summing_pairs(set_of_ints, target_sum))
-		sorted_naive_pairs = \
-			sorted(_naive_sum_finder(list(set_of_ints), target_sum))
-		assert sorted_pairs == sorted_naive_pairs
-
-
-if __name__ == "__main__":
-	test_find_summing_pairs()

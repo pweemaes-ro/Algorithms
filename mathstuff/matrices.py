@@ -1,5 +1,4 @@
 """Some matrix functionality"""
-from itertools import pairwise
 from typing import TypeAlias, TypeVar
 
 T = TypeVar("T", int, float, complex)

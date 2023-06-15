@@ -1,4 +1,14 @@
-"""Yet another sorting algorithm..."""
+"""Bubble Sort is a simple and intuitive sorting algorithm that works by
+repeatedly swapping adjacent elements in an array that are out of order until
+the entire array is sorted. It starts by comparing the first two elements of
+the array, swapping them if necessary, and then moving on to the next pair of
+adjacent elements. This process is repeated until all pairs of adjacent
+elements have been compared.
+
+Pros: Simple and easy to implement.
+Cons: Inefficient for larger datasets and has a time complexity of O(n^2).
+Stable: Yes."""
+
 from collections.abc import Callable
 from operator import lt, gt
 from typing import Optional
@@ -9,7 +19,8 @@ def bubble_sort(sequence: list[SupportsLessThanT],
                 key: Optional[Callable[[SupportsLessThanT],
                               SupportsLessThanT]] = None,
 				reverse: bool = False) -> None:
-	"""Inefficient but 'popular'... And stable."""
+	"""In place stable sorting algorithm with O(n^2) time complexity, suitable
+	only for small datasets."""
 
 	if reverse:
 		compare_operator = lt

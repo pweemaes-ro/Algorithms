@@ -15,7 +15,7 @@ def test_matrix_product() -> None:
 
 	assert matrix_product([], []) == []
 	assert matrix_product([[1]], [[1]]) == [[1]]
-	assert matrix_product([[1], [2]], [[2, 1]]) == [[2, 1],[4, 2]]
+	assert matrix_product([[1], [2]], [[2, 1]]) == [[2, 1], [4, 2]]
 	try:
 		# incompatible: (2 x 1) x (2 x 3)
 		_ = matrix_product([[1], [2]], [[0, 1, 2], [2, 1, 0]])

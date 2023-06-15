@@ -46,6 +46,7 @@ def test_binary_search() -> None:
 	
 	_test_binary_search_func(binary_search)
 
+
 def test_binary_search_recusive() -> None:
 	"""Test binary_search_recursive function."""
 
