@@ -5,7 +5,7 @@ from typing import TypeVar, TypeAlias, Optional
 
 T = TypeVar('T')
 
-__precedence: dict[str, int] = {'^': 6, '*': 5, '/': 4, '+': 3, '-': 2}
+__precedence: dict[str, int] = {'^': 6, '*': 5, '/': 5, '+': 3, '-': 3}
 __right_associative_operators = set("^")
 __left_associative_operators = set("+-*/")
 __operators = __right_associative_operators.union(__left_associative_operators)
@@ -59,7 +59,7 @@ def _pop_operator(operator_stack: OperatorStack, operator: Operator) \
 		if next_operator == "(":
 			return None
 		
-		if __precedence[next_operator] > __precedence[operator]:
+		if __precedence[next_operator] >= __precedence[operator]:
 			return operator_stack.pop()
 		
 		if _is_right_associative(next_operator) and \
