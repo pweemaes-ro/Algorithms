@@ -1,9 +1,8 @@
 """Conversion from infix to prefix and postfix using stack."""
+from collections.abc import Callable
 from string import ascii_uppercase
-from typing import TypeVar, TypeAlias, Optional
+from typing import TypeAlias, Optional
 
-
-T = TypeVar('T')
 
 __precedence: dict[str, int] = {'^': 4, '*': 3, '/': 3, '+': 2, '-': 2}
 __right_associative_operators = set("^")
@@ -12,9 +11,11 @@ __operators = __right_associative_operators.union(__left_associative_operators)
 __operands = set(ascii_uppercase)
 
 Operator: TypeAlias = str
+Operators: TypeAlias = set[Operator]
 Operand: TypeAlias = str
 OperatorStack: TypeAlias = list[Operator]
 OperandStack: TypeAlias = list[Operand]
+PopFunction: TypeAlias = Callable[[OperatorStack, Operator], Optional[Operator]]
 
 
 def _is_operand(symbol: str) -> bool:
@@ -25,50 +26,89 @@ def _is_operator(symbol: str) -> bool:
 	return symbol in __operators
 
 
-def _pop_operator(operator_stack: OperatorStack, operator: Operator) \
-	-> Optional[Operator]:
-	# i. Pop operator on the stack that
-	#       a. is above the most recently scanned left parenthesis, and
-	#       b. has precedence higher than or is a right-associative
-	#          operator of equal precedence to that of the new operator
-	#          symbol.
+def _pop_any(operator_stack: OperatorStack, operator: Operator,
+             associative_operators: Operators) -> Optional[Operator]:
+	"""Pop and return from *operator_stack* if top of stack is an operator that
+	1. has higher precedence than *operator*, or
+	2. has equal precedence than *operator* and *operator* is in the set of
+	   associate operators."""
 
 	if len(operator_stack) == 0:
 		return None
 
 	stack_operator = operator_stack[-1]
-	if stack_operator not in __operators:
+
+	if not _is_operator(stack_operator):
 		return None
 
 	if __precedence[stack_operator] > __precedence[operator]:
 		return operator_stack.pop()
 
 	if __precedence[stack_operator] == __precedence[operator]:
-		if operator in __left_associative_operators:
+		if operator in associative_operators:
 			return operator_stack.pop()
 
 	return None
+
+
+def _pop_postfix(operator_stack: OperatorStack, operator: Operator) \
+	-> Optional[Operator]:
+
+	return _pop_any(operator_stack, operator, __left_associative_operators)
+
+
+def _pop_prefix(operator_stack: OperatorStack, operator: Operator) \
+	-> Optional[Operator]:
+
+	return _pop_any(operator_stack, operator, __right_associative_operators)
+
+
+def _swap_chars(string: str, char_1: str, char_2: str) -> str:
+	"""Return *string* but with all occurances of *char_1* replaced by *char_2*
+	and all occurances of *char_2* replaced by *char_1*."""
+	
+	swapped_list = list(string)
+	
+	for i in range(len(swapped_list)):
+		if swapped_list[i] == char_1:
+			swapped_list[i] = char_2
+		elif swapped_list[i] == char_2:
+			swapped_list[i] = char_1
+	
+	return ''.join(swapped_list)
+
+
+def _postfix_to_infix(postfix: str) -> str:
+	
+	operand_stack: OperandStack = []
+	
+	for symbol in postfix:
+		if _is_operator(symbol):
+			right_operand = operand_stack.pop()
+			left_operand = operand_stack.pop()
+			operand_stack.append("(" + left_operand + symbol + right_operand
+			                     + ")")
+		else:
+			operand_stack.append(symbol)
+	
+	return ''.join(operand_stack)[1:-1]
 
 
 def postfix_to_infix(postfix: str) -> str:
 	"""Return the infix representation of the postfix expression. Result may
 	have redundant parentheses."""
 	
-	operand_stack: OperandStack = []
-	
-	for c in postfix:
-		if c in __operators:
-			right_operand = operand_stack.pop()
-			left_operand = operand_stack.pop()
-			operand_stack.append("(" + left_operand + c + right_operand + ")")
-		else:
-			operand_stack.append(c)
-	
-	return operand_stack.pop()[1:-1]
+	return _postfix_to_infix(postfix)
 
 
-def postfix_to_prefix(postfix: str) -> str:
-	"""Return prefix representation of the postfix expression."""
+def prefix_to_infix(prefix: str) -> str:
+	"""Return the infix representation of the prefix expression. Result may
+	have redundant parentheses."""
+	
+	return _swap_chars(_postfix_to_infix(prefix[::-1])[::-1], "(", ")")
+
+
+def _postfix_to_prefix(postfix: str) -> str:
 	
 	operand_stack: OperandStack = []
 	
@@ -76,89 +116,62 @@ def postfix_to_prefix(postfix: str) -> str:
 		if _is_operand(symbol):
 			operand_stack.append(symbol)
 		else:
-			operand_1 = operand_stack.pop()
-			operand_2 = operand_stack.pop()
-			operand_stack.append(symbol + operand_2 + operand_1)
+			right_operand = operand_stack.pop()
+			left_operand = operand_stack.pop()
+			operand_stack.append(symbol + left_operand + right_operand)
 	
 	return operand_stack.pop()
+
+
+def postfix_to_prefix(postfix: str) -> str:
+	"""Return prefix representation of the postfix expression."""
+	
+	return _postfix_to_prefix(postfix)
 
 
 def prefix_to_postfix(prefix: str) -> str:
 	"""Return postfix representation of the prefix expression."""
 
-	operand_stack: OperandStack = []
-	
-	for symbol in reversed(prefix):
-		if _is_operand(symbol):
-			operand_stack.append(symbol)
-		else:
-			operand_1 = operand_stack.pop()
-			operand_2 = operand_stack.pop()
-			operand_stack.append(symbol + operand_2 + operand_1)
-	
-	return operand_stack.pop()[::-1]
+	return _postfix_to_prefix(prefix[::-1])[::-1]
 
 
-def infix_to_postfix(infix: str) -> str:
+def _infix_to_postfix(infix: str, *, pop_function: PopFunction) -> str:
 	"""Return postfix representation of the infix expression."""
 
 	postfix_list: list[str] = []
 	operator_stack: OperatorStack = []
 	
-	# Scan the input string (infix notation) from left to right. One pass is
-	# sufficient.
 	for symbol in infix:
-		# If the next symbol scanned is an operand, it may be immediately
-		# appended to the postfix string.
 		if _is_operand(symbol):
-			# print(f"1. appending operand = {symbol}")
 			postfix_list.append(symbol)
 		
-		# If the next symbol is an operator,
-		# i. Pop and append to the postfix string every operator on the stack
-		#    that
-		#       a. is above the most recently scanned left parenthesis, and
-		#       b. has precedence higher than or is a right-associative
-		#          operator of equal precedence to that of the new operator
-		#          symbol.
-		# ii. Push the new operator onto the stack.
 		elif _is_operator(symbol):
-			while operator := _pop_operator(operator_stack, symbol):
+			while operator := pop_function(operator_stack, symbol):
 				postfix_list.append(operator)
 			operator_stack.append(symbol)
 		
-		# When a left parenthesis is seen, it must be pushed onto the stack.
 		elif symbol == "(":
 			operator_stack.append(symbol)
 		
-		# When a right parenthesis is seen, all operators down to the most
-		# recently scanned left parenthesis must be popped and appended to the
-		# postfix string. Furthermore, this pair of parentheses must be
-		# discarded.
 		elif symbol == ")":
 			while len(operator_stack) \
 					and (popped_operator := operator_stack.pop()) != "(":
 				postfix_list.append(popped_operator)
 	
-	# When the infix string is completely scanned, the stack may still contain
-	# some operators. [Why are there no parentheses on the stack at this
-	# point?] All the remaining operators should be popped and appended to the
-	# postfix string.
 	while len(operator_stack):
-		operator = operator_stack.pop()
-		postfix_list.append(operator)
+		postfix_list.append(operator_stack.pop())
 	
 	return ''.join(postfix_list)
 
 
 def infix_to_prefix(infix: str) -> str:
-	"""Return the prefix representation of the infix expression (supports
-	operators: ^, *, /, + and -."""
+	"""Using a few 'tricks' is faster than converting infix to postfix and then
+	postfix to prefix...'"""
 
-	return postfix_to_prefix(infix_to_postfix(infix))
+	return _infix_to_postfix(_swap_chars(infix, "(", ")")[::-1],
+	                         pop_function=_pop_prefix)[::-1]
 
 
-def prefix_to_infix(prefix: str) -> str:
-	"""Return infix representation of the prefix expression."""
-
-	return postfix_to_infix(prefix_to_postfix(prefix))
+def infix_to_postfix(infix: str) -> str:
+	"""After introducing bla"""
+	return _infix_to_postfix(infix, pop_function=_pop_postfix)
