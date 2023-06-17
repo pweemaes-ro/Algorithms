@@ -1,7 +1,7 @@
 """Tests all available conversions."""
 from in_pre_postfix import infix_to_postfix, postfix_to_infix, \
 	infix_to_prefix, prefix_to_postfix, prefix_to_infix, postfix_to_prefix, \
-	__exponential_operator
+	__power_operator
 
 unspaced_tuple = (
 	("A+B-C", "AB+C-", "-+ABC"),
@@ -26,7 +26,7 @@ unspaced_tuple = (
 
 def _get_test_data() -> tuple[list[str]]:
 	
-	return tuple(list(' '.join(string).replace("^", __exponential_operator)
+	return tuple(list(' '.join(string).replace("^", __power_operator)
 	                  for string in line)
 	             for line in unspaced_tuple)
 	
