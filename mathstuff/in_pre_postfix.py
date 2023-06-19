@@ -8,7 +8,8 @@ from typing import TypeAlias, Optional
 Operator: TypeAlias = str
 EvalValue: TypeAlias = int | float | complex
 Precedence: TypeAlias = int
-PyOperator: TypeAlias = Callable[[EvalValue, EvalValue], EvalValue]
+PyOperator: TypeAlias = Callable[[Optional[EvalValue], Optional[EvalValue]],
+								  EvalValue]
 
 
 class Associativity(Enum):
@@ -33,7 +34,7 @@ OperatorStack: TypeAlias = list[Operator]
 Operand: TypeAlias = str
 OperandStack: TypeAlias = list[Operand]
 PopFunction: TypeAlias = Callable[[OperatorStack, Operator], Optional[Operator]]
-OperandsFunc: TypeAlias = Callable[[OperatorStack], list[EvalValue]]
+OperandsFunc: TypeAlias = Callable[[OperatorStack], list[Optional[EvalValue]]]
 
 __power_operator = "**"   # Choose "**" or "^"
 __operators = \
@@ -79,23 +80,44 @@ def _is_int(x: str) -> Optional[int]:
 		return b if a == b else None
 
 
-def _to_number(num_as_str: str) -> EvalValue:
-	return _is_int(num_as_str) or _is_float(num_as_str) or complex(num_as_str)
+def _is_complex(x: str) -> Optional[complex]:
+	try:
+		c = complex(x)
+	except (TypeError, ValueError):
+		return None
+	else:
+		return c
 
 
-def _get_operands(operand_stack: OperandStack, nr: int) -> list[EvalValue]:
+def _to_number(num_as_str: str) -> Optional[EvalValue]:
+	# Todo: Is this eval_str necessary? Won't it work with num_as_str?
+	# eval_str = num_as_str.replace("(", "").replace(")", "")
+	eval_str = num_as_str
+	if (i := _is_int(eval_str)) is not None:
+		return i
+	elif (f := _is_float(eval_str)) is not None:
+		return f
+	elif (c := _is_complex(eval_str)) is not None:
+		return c
+	
+	return None
+
+
+def _get_operands(operand_stack: OperandStack, nr: int) \
+	-> list[Optional[EvalValue]]:
 	return [_to_number(operand_stack.pop()) for _ in range(nr)]
 
 
-def _prefix_operands(operand_stack: OperandStack) -> list[EvalValue]:
+def _prefix_operands(operand_stack: OperandStack) -> list[Optional[EvalValue]]:
 	return _get_operands(operand_stack, 2)
 
 
-def _prostfix_operands(operand_stack: OperandStack) -> list[EvalValue]:
+def _postfix_operands(operand_stack: OperandStack) -> list[Optional[EvalValue]]:
 	return _get_operands(operand_stack, 2)[::-1]
 
 
-def _eval_polish(polish: list[str], operands_func: OperandsFunc) -> EvalValue:
+def _eval_polish(polish: list[str], operands_func: OperandsFunc) \
+	-> Optional[EvalValue]:
 	"""Return the value of evaluating the postfix expression"""
 
 	operand_stack: OperandStack = []
@@ -109,20 +131,18 @@ def _eval_polish(polish: list[str], operands_func: OperandsFunc) -> EvalValue:
 	return _to_number(operand_stack.pop())
 
 
-def eval_postfix(postfix: str) -> EvalValue:
+def eval_postfix(postfix: str) -> Optional[EvalValue]:
 	"""Return the value of evaluating the postfix expression"""
 
-	return _eval_polish(postfix.split(), _prostfix_operands)
+	return _eval_polish(postfix.split(), _postfix_operands)
 
 
-def eval_prefix(prefix: str) -> int | float | complex:
+def eval_prefix(prefix: str) -> Optional[EvalValue]:
 	"""Return the value of evaluating the postfix expression"""
 
 	return _eval_polish(prefix.split()[::-1], _prefix_operands)
 
 	
-# def _pop_any(operator_stack: OperatorStack, new_operator: Operator,
-# 			 associative_ops: Operators) -> Optional[Operator]:
 def _pop_any(operator_stack: OperatorStack, new_operator: Operator,
              associativity: Associativity) -> Optional[Operator]:
 	"""Pop and return from *operator_stack* if top of stack is an operator that
@@ -137,7 +157,7 @@ def _pop_any(operator_stack: OperatorStack, new_operator: Operator,
 			return operator_stack.pop()
 		
 		if _precedence(stack_operator) == _precedence(new_operator) \
-				and _associativity(new_operator) == associativity:
+				and _associativity(new_operator) is associativity:
 			return operator_stack.pop()
 
 	return None
@@ -170,7 +190,7 @@ def _swap_chars(string: str, char_1: str, char_2: str) -> str:
 	return ''.join(swapped_list)
 
 
-def _postfix_to_infix(postfix: str) -> str:
+def _polish_to_infix(postfix: str) -> str:
 	
 	operand_stack: OperandStack = []
 	
@@ -191,17 +211,17 @@ def postfix_to_infix(postfix: str) -> str:
 	"""Return the infix representation of the postfix expression. Result may
 	have redundant parentheses."""
 	
-	return _postfix_to_infix(postfix)
+	return _polish_to_infix(postfix)
 
 
 def prefix_to_infix(prefix: str) -> str:
 	"""Return the infix representation of the prefix expression. Result may
 	have redundant parentheses."""
 	
-	return _swap_chars(_postfix_to_infix(prefix[::-1])[::-1], "(", ")")
+	return _swap_chars(_polish_to_infix(prefix[::-1])[::-1], "(", ")")
 
 
-def _postfix_to_prefix(postfix: str) -> str:
+def _polish_to_polish(postfix: str) -> str:
 	
 	operand_stack: OperandStack = []
 	
@@ -221,21 +241,21 @@ def _postfix_to_prefix(postfix: str) -> str:
 def postfix_to_prefix(postfix: str) -> str:
 	"""Return prefix representation of the postfix expression."""
 	
-	return _postfix_to_prefix(postfix)
+	return _polish_to_polish(postfix)
 
 
 def prefix_to_postfix(prefix: str) -> str:
 	"""Return postfix representation of the prefix expression."""
 	
-	return _postfix_to_prefix(prefix[::-1])[::-1]
+	return _polish_to_polish(prefix[::-1])[::-1]
 
 
-def _infix_to_postfix(infix: str, *, pop_function: PopFunction) -> str:
+def _infix_to_polish(infix: str, *, pop_function: PopFunction) -> str:
 	"""Return postfix representation of the infix expression."""
 	
 	postfix_list: list[str] = []
 	operator_stack: OperatorStack = []
-	
+
 	for symbol in infix.split():
 		if _is_operator(symbol):
 			while operator := pop_function(operator_stack, symbol):
@@ -260,36 +280,42 @@ def infix_to_prefix(infix: str) -> str:
 	"""Using a few 'tricks' is faster than converting infix to postfix and then
 	postfix to prefix...'"""
 	
-	return _infix_to_postfix(_swap_chars(infix, "(", ")")[::-1],
-							 pop_function=_pop_prefix)[::-1]
+	return _infix_to_polish(_swap_chars(infix, "(", ")")[::-1],
+	                        pop_function=_pop_prefix)[::-1]
 
 
 def infix_to_postfix(infix: str) -> str:
 	"""After introducing bla"""
 	
-	return _infix_to_postfix(infix, pop_function=_pop_postfix)
+	return _infix_to_polish(infix, pop_function=_pop_postfix)
 
 
 if __name__ == "__main__":
-	
-	def _main() -> None:
-		# print(eval_postfix("3 4 +"))
-		# print(eval_postfix("3 4 -"))
-		# print(eval_postfix("3 4 *"))
-		# print(eval_postfix("3 4 /"))
-		# print(eval_postfix("3 4 **"))
-		example = "3 + ( 3 - 2 ) + 2 ** 3 ** 2"
-		print(f"{example = }")
-	
-		postfix = infix_to_postfix(example)
-		print(f"{postfix = }")
-		eval_post = eval_postfix(postfix)
-		print(f"{eval_post = }")
+	def _parenthesize_negative_values(infix: str) -> str:
+		"""In order to let eval return the same value as the polish versions, we
+		must put parentheses around all negative operands in the eval input."""
 		
-		prefix = infix_to_prefix(example)
-		print(f"{prefix = }")
-		eval_pre = eval_prefix(prefix)
-		# print(type(eval_pref))
-		print(f"{eval_pre = }")
+		as_list = infix.split()
+		for i, string in enumerate(as_list):
+			if len(as_list[i]) > 1 and as_list[i][0] == '-':
+				as_list[i] = "(" + as_list[i] + ")"
+		return " ".join(as_list)
 	
-	_main()
+	def _test_misc() -> None:
+		infix = "--2 ** 3 ** 4"
+		print(f"{infix = }")
+		infix_value = eval(_parenthesize_negative_values(infix))
+		print(f"{infix_value  = }")
+		
+		prefix = infix_to_prefix(infix)
+		print(f"{prefix = }")
+		prefix_value = eval_prefix(prefix)
+		print(f"{prefix_value = }")
+
+		# postfix = infix_to_postfix(infix)
+		# print(postfix)
+		# postfix_value = eval_postfix(postfix)
+		# print(postfix_value)
+
+	_test_misc()
+	
