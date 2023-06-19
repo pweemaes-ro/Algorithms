@@ -90,14 +90,12 @@ def _is_complex(x: str) -> Optional[complex]:
 
 
 def _to_number(num_as_str: str) -> Optional[EvalValue]:
-	# Todo: Is this eval_str necessary? Won't it work with num_as_str?
-	# eval_str = num_as_str.replace("(", "").replace(")", "")
-	eval_str = num_as_str
-	if (i := _is_int(eval_str)) is not None:
+
+	if (i := _is_int(num_as_str)) is not None:
 		return i
-	elif (f := _is_float(eval_str)) is not None:
+	elif (f := _is_float(num_as_str)) is not None:
 		return f
-	elif (c := _is_complex(eval_str)) is not None:
+	elif (c := _is_complex(num_as_str)) is not None:
 		return c
 	
 	return None
