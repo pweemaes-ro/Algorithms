@@ -20,7 +20,7 @@ def insertion_sort_recursive(sequence: list[SupportsLessThanT],
                              key: Optional[Callable[[SupportsLessThanT],
                                            SupportsLessThanT]] = None,
                              reverse: bool = False) -> None:
-	"""In place stable sorting algorith with O(n^2) time complexity. Suitable
+	"""In place stable sorting algorithm with O(n^2) time complexity. Suitable
 	only for small datasets.
 	
 	You can also think of insertion sort as a recursive algorithm. In order
@@ -67,15 +67,16 @@ def _move_to_place(sequence: MutableSequence[SupportsLessThanT],
 	key_item = sequence[key_index]
 	key = keys[key_index]
 	j = key_index
-
+	must_swap_keys = keys is not sequence
+	
 	while stop > j >= start + 1 and compare_func(key, keys[j - 1]):
 		sequence[j] = sequence[j - 1]
-		if keys is not sequence:
+		if must_swap_keys:
 			keys[j] = keys[j - 1]
 		j -= 1
 	
 	sequence[j] = key_item
-	if keys is not sequence:
+	if must_swap_keys:
 		keys[j] = key
 
 

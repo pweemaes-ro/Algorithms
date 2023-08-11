@@ -1,4 +1,4 @@
-"""Conversion from infix to prefix and postfix using stack."""
+"""Conversion from infix to prefix and polish using stack."""
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -219,8 +219,9 @@ def prefix_to_infix(prefix: str) -> str:
 	return _swap_chars(_polish_to_infix(prefix[::-1])[::-1], "(", ")")
 
 
-def _polish_to_polish(postfix: str) -> str:
-	
+def postfix_to_prefix(postfix: str) -> str:
+	"""Return prefix representation of the postfix expression."""
+
 	operand_stack: OperandStack = []
 	
 	for symbol in postfix.split():
@@ -236,16 +237,10 @@ def _polish_to_polish(postfix: str) -> str:
 	return operand_stack.pop()
 
 
-def postfix_to_prefix(postfix: str) -> str:
-	"""Return prefix representation of the postfix expression."""
-	
-	return _polish_to_polish(postfix)
-
-
 def prefix_to_postfix(prefix: str) -> str:
 	"""Return postfix representation of the prefix expression."""
 	
-	return _polish_to_polish(prefix[::-1])[::-1]
+	return postfix_to_prefix(prefix[::-1])[::-1]
 
 
 def _infix_to_polish(infix: str, *, pop_function: PopFunction) -> str:
@@ -286,34 +281,3 @@ def infix_to_postfix(infix: str) -> str:
 	"""After introducing bla"""
 	
 	return _infix_to_polish(infix, pop_function=_pop_postfix)
-
-
-if __name__ == "__main__":
-	def _parenthesize_negative_values(infix: str) -> str:
-		"""In order to let eval return the same value as the polish versions, we
-		must put parentheses around all negative operands in the eval input."""
-		
-		as_list = infix.split()
-		for i, string in enumerate(as_list):
-			if len(as_list[i]) > 1 and as_list[i][0] == '-':
-				as_list[i] = "(" + as_list[i] + ")"
-		return " ".join(as_list)
-	
-	def _test_misc() -> None:
-		infix = "--2 ** 3 ** 4"
-		print(f"{infix = }")
-		infix_value = eval(_parenthesize_negative_values(infix))
-		print(f"{infix_value  = }")
-		
-		prefix = infix_to_prefix(infix)
-		print(f"{prefix = }")
-		prefix_value = eval_prefix(prefix)
-		print(f"{prefix_value = }")
-
-		# postfix = infix_to_postfix(infix)
-		# print(postfix)
-		# postfix_value = eval_postfix(postfix)
-		# print(postfix_value)
-
-	_test_misc()
-	

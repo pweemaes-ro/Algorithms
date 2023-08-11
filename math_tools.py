@@ -29,7 +29,8 @@ def horner_polynomial(coefficients: Sequence[Any], x: Any) -> Any:
 float with the magnitude (absolute value) of x but the sign of y, we have:
 a) if y < 0 then sign(y) = math.copysign(1, y) == -1.0,
 b) if y >= 0 then sign(y) = math.copysign(1, y) == 1.0.
-On platforms that support signed zeros, copysign(1.0, -0.0) returns -1.0."""
+On platforms that support signed zeros (a.o. Windows 11), copysign(1.0, -0.0)
+returns -1.0."""
 sign = partial(copysign, 1)
 
 

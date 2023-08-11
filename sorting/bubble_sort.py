@@ -41,7 +41,7 @@ def bubble_sort(sequence: list[SupportsLessThanT],
 		while j > i:
 			if compare_operator(keys[j - 1], keys[j]):
 				sequence[j], sequence[j - 1] = sequence[j - 1], sequence[j]
-				if keys is not sequence:
+				if key:
 					keys[j], keys[j - 1] = keys[j - 1], keys[j]
 				no_swaps = False
 			j -= 1
