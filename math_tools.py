@@ -1,8 +1,8 @@
 """Some math stuff"""
-import math
 from collections.abc import Sequence
 from functools import partial, lru_cache
-from math import copysign, sqrt
+from cmath import sqrt as csqrt
+from math import copysign, isclose
 from random import randint
 from time import perf_counter_ns
 from typing import Optional, Any, cast
@@ -88,7 +88,6 @@ def get_real_roots(a: float, b: float, c: float) \
 	exist (both are set to None)."""
 	
 	return cast(tuple[Optional[float], Optional[float]], _get_roots(a, b, c))
-	# return _get_roots(a, b, c)
 
 
 def _get_roots(a: float, b: float, c: float, real_only: bool = True) \
@@ -96,18 +95,12 @@ def _get_roots(a: float, b: float, c: float, real_only: bool = True) \
 
 	discriminant = b ** 2 - (4 * a * c)
 
-	if real_only and abs(discriminant) == 0:
+	if real_only and discriminant < 0:
 		return None, None
 	
 	denominator = 2 * a
-	
-	if abs(discriminant) == 0:
-		# Both roots are equal.
-		root = -b / denominator
-		return root, root
-	else:
-		root_d = sqrt(discriminant)
-		return (-b + root_d) / denominator, (-b - root_d) / denominator
+	root_d = csqrt(discriminant)
+	return (-b + root_d) / denominator, (-b - root_d) / denominator
 
 
 def get_roots(a: float, b: float, c: float) \
@@ -138,7 +131,7 @@ if __name__ == "__main__":
 		
 			print(horner)
 			print(naive)
-			assert math.isclose(horner, naive, rel_tol=0.001)
+			assert isclose(horner, naive, rel_tol=0.001)
 			assert horner == naive  # all results are ints
 
 		print(f"{h_total = :12d}")
