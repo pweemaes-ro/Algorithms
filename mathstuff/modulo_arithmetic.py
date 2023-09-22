@@ -51,18 +51,17 @@ def fast_mod_exp(base: int, exponent: int, modulo: int) -> int:
 	return _mod_exp(exponent)
 
 
-def extended_euclid(a: int, b: int) -> tuple[int, int, int, int, Optional[int]]:
+def extended_euclid(a: int, b: int) -> tuple[int, int, int, Optional[int]]:
 	"""Returns a tuple containing - in order:
 	
-	- the signed greatest common divisor of a and b (will be negative iif one
-	  or both of a and b is/are negative).
-	- the absolute value of the greatest common divisor of a and b.
-	- the x-coefficient and
-	- the y-coefficient of the Bézout identity ax + by = gcd(a, b) (with x and y
-	  guaranteed the smallest possible coefficients satisfying this identity).
+	- the (signed!) greatest common divisor of a and b (will be negative iif one
+	  or both of a and b negative).
+	- an x-coefficient and
+	- an y-coefficient of the Bézout identity ax + by = gcd(a, b) (with
+	  guaranteed abs(x) <= b/gcd(a,b) and abs(y) <= a/gcd(a, b).
 	- the modular multiplicative inverse of b modulo a (NOT a modulo b!) if it
-	  exists (that is, if a and b are coprime and a is a positive integer), or
-	  None if such an inverse does not exist."""
+	  exists, or None if such an inverse does not exist. An inverse exists iif
+	  a is positive, and abs(gcd(a, b)) = 1."""
 	
 	r_i, r_i_plus_one = a, b
 	x_i, x_i_plus_one = 1, 0
@@ -77,13 +76,13 @@ def extended_euclid(a: int, b: int) -> tuple[int, int, int, int, Optional[int]]:
 		assert a * x_i + b * y_i == r_i
 	
 	# inverses only apply if a and b are coprime and if a is a positive integer.
-	if abs(r_i) > 1 or a < 1:
+	if abs(r_i) != 1 or a < 1:
 		inv = None
 	else:
 		inv = y_i
 		if inv < 0:
 			inv += a
-	return r_i, abs(r_i), x_i, y_i, inv
+	return r_i, x_i, y_i, inv
 
 
 def inverse(a: int, n: int) -> Optional[int]:

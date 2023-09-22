@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import time
-from collections.abc import Iterator
+from collections.abc import Iterator, Iterable, Callable
 from copy import copy
 from random import shuffle
-from typing import Optional, Generic, Reversible, Any, Callable, Self, TypeAlias
+from typing import Optional, Generic, Reversible, Any, Self, Generator, \
+	TypeAlias
 from common import SupportsLessThanT
 from merge_sort import merge_sort
 
@@ -287,10 +288,49 @@ class LinkedList(Generic[SupportsLessThanT]):
 		
 		return LinkedList([node.data
 		                   for node in sorted(list(self))])
+	
+
+def flatten_g(iterable: Iterable[Any],
+              str_as_iterable: bool = False,
+              dict_as_keys: bool = False) \
+	-> Generator[Iterable[Any], Any, None]:
+	"""Return a generator that yiels all non-iterable content in iterable.
+	By default, strings are iterable, so the returned list contains all
+	their individual chars, unless False is passed for the str_as_iterable
+	parameter."""
+	
+	for item in iterable:
+		if isinstance(item, str):
+			if not str_as_iterable or len(item) <= 1:
+				yield item
+			else:
+				yield from item
+		elif isinstance(item, (list, tuple, set)):
+			yield from flatten_g(item, str_as_iterable)
+		elif isinstance(item, dict):
+			if dict_as_keys:
+				yield from item
+			else:
+				yield item
+		elif isinstance(item, Iterable):
+			yield from item
+		else:
+			yield item
+
+
+def flatten(iterable: Iterable[Any],
+            str_as_iterable: bool = False,
+            dict_as_keys: bool = False) \
+	-> list[Any]:
+	"""Return a list of all non-iterable content in iterable. By default,
+	strings are iterable, so the returned list contains all their
+	individual chars, unless False is passed for the str_as_iterable
+	parameter."""
+	
+	return list(flatten_g(iterable, str_as_iterable, dict_as_keys))
 
 
 if __name__ == "__main__":
-	
 	def main() -> None:
 		"""A few basic tests"""
 		# for i in range(10):
@@ -310,8 +350,7 @@ if __name__ == "__main__":
 
 	main()
 	
-	OptionalLinkedList: TypeAlias = Optional[LinkedList]
-	SortFunc = Callable[[LinkedList], OptionalLinkedList]
+	SortFunc: TypeAlias = Callable[[LinkedList], Optional[LinkedList]]
 	Functions = tuple[SortFunc, str]
 	
 	def timing(n: int) -> None:

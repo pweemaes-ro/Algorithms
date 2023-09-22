@@ -7,6 +7,37 @@ from typing import Callable, Optional
 from common import SupportsLessThanT
 
 
+def _set_median_key(sequence: MutableSequence[SupportsLessThanT],
+                    low: int,
+                    high: int,
+                    keys: MutableSequence[SupportsLessThanT],
+                    destination: int) -> None:
+
+	if high - low < 10:  # no point in wasting time for small sequence
+		return
+	
+	middle = (low + high) // 2
+	median_value = sorted([sequence[low],
+	                       sequence[high],
+	                       sequence[middle]])[1]
+	
+	if sequence[low] == median_value:
+		median_index = low
+	elif sequence[high] == median_value:
+		median_index = high
+	else:
+		median_index = middle
+
+	if destination == median_index:
+		return
+	
+	sequence[destination], sequence[median_index] = \
+		sequence[median_index], sequence[destination]
+	if keys is not sequence:
+		keys[destination], keys[median_index] = \
+			keys[median_index], keys[destination]
+
+
 def _partition_lomuto(sequence: MutableSequence[SupportsLessThanT],
                       low: int,
                       high: int,
@@ -15,8 +46,14 @@ def _partition_lomuto(sequence: MutableSequence[SupportsLessThanT],
 	"""In place partition the sequence using the item at the last position as
 	pivot. Return the pivot index."""
 	
-	pivot_key = keys[high]  # last item is the pivot
-	pivot_idx = low         # destination for swapping items <= pivot to.
+	_set_median_key(sequence, low, high, keys, high)
+	
+	# last item in (sub)array is the pivot:
+	pivot_key = keys[high]
+	
+	# destination for swapping items <= pivot to, moves one position to the
+	# right after each swap:
+	pivot_idx = low
 	
 	if reverse:
 		compare_operator = ge
@@ -75,9 +112,12 @@ def _partition_hoare(sequence: MutableSequence[SupportsLessThanT],
                      high: int,
                      keys: MutableSequence[SupportsLessThanT],
                      reverse: bool = False) -> int:
-	"""In place partition the sequence, using te item in the middle as pivot.
-	Return the pivot index."""
-	
+	"""In place partition the sequence, using te item in the first position as
+	pivot. Return the pivot index. Notice that this differs from the Lomuto
+	partitioning in the choice of the pivot value's location, but also in the
+	implementation of the partitioning """
+
+	_set_median_key(sequence, low, high, keys, low)
 	pivot_key = keys[low]
 	
 	left = low
@@ -91,23 +131,30 @@ def _partition_hoare(sequence: MutableSequence[SupportsLessThanT],
 		right_before_pivot = gt
 	
 	while True:
-		# Find leftmost element greater than or equal to pivot
+		# Move inward to right until 'left' points to an element >= pivot (or
+		# <= pivot if reversed).
 		while left_before_pivot(keys[left], pivot_key):
 			left += 1
-	
-		# Find rightmost element smaller than or equal to pivot
+
+		# Move inward to left until 'right' points to an element <= to pivot
+		# (or >= pivot if reversed).
 		while right_before_pivot(keys[right], pivot_key):
 			right -= 1
 		
-		# If two pointers met...
+		# If 'left' and 'right' met, or crossed, we're done. 'right' now points
+		# to a value <= pivot (or >= pivot if reversed)...
 		if left >= right:
 			return right
 		
+		# ... else we swap what left points to and what right points to, so
+		# after swap element >= pivot at right of pivot and element <= pivot at
+		# left of pivot (or the other way around if reversed).
 		if keys is not sequence:
 			keys[left], keys[right] = keys[right], keys[left]
 		sequence[left], sequence[right] = sequence[right], sequence[left]
 		
-		# Move both pointers to the next item
+		# Move both pointers 'inward' to the next item ('left' moves one position
+		# to the right, 'right' moves one position to the left
 		left += 1
 		right -= 1
 
@@ -130,8 +177,7 @@ def _quicksort_hoare(sequence: MutableSequence[SupportsLessThanT],
 def quicksort_hoare(sequence: list[SupportsLessThanT],
                     key: Optional[Callable[[SupportsLessThanT],
                                   SupportsLessThanT]] = None,
-                    reverse: bool = False) \
-	-> None:
+                    reverse: bool = False) -> None:
 	"""In place sorting using quicksort algorithm and Hoare's partitioning
 	algorithm."""
 

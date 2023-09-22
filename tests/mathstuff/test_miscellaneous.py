@@ -3,12 +3,13 @@ from itertools import pairwise
 from random import randint, choice
 
 # noinspection PyProtectedMember
-from miscellaneous import get_summing_pairs, _naive_sum_finder, has_summing_pair
+from miscellaneous import (get_summing_pairs, _naive_sum_finder,
+	has_summing_pair)
 
 
 def test_get_summing_pairs() -> None:
 	"""Some basic tests..."""
-	
+
 	for i in range(500):
 		set_of_ints = set((randint(-i, i) for _ in range(i)))
 		target_sum = i // 2 * choice([-1, 1])
@@ -24,14 +25,14 @@ def test_has_summing_pairs():
 		assert not has_summing_pair(test_set, 100)
 		for a, b in pairwise(test_set):
 			s = set(test_set)
-			c = a + b
+			s.add(c := a + b)
 			# a = c + (-b)
 			# b = c + (-a)
 			s.add(-a)
 			s.add(-b)
-			assert has_summing_pair(s, c)
-			assert has_summing_pair(s, a)
-			assert has_summing_pair(s, b)
+			assert has_summing_pair(s, c)   # since c = a + b
+			assert has_summing_pair(s, a)   # since a = c + (- b)
+			assert has_summing_pair(s, b)   # since b = c + (- a)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 
 def has_summing_pair(integers: set[int], target_sum: int) -> bool:
-	"""Return boolean indiacting whether a pair (a, b) of integers exist in the
+	"""Return boolean indicating whether a pair (a, b) of integers exist in the
 	integers argument that sum up to target_sum."""
 	
 	return bool(_summing_pairs(integers, target_sum, is_existence_check=True))
@@ -42,8 +42,6 @@ def _summing_pairs(integers: set[int],
 	return pairs
 
 
-# def _naive_sum_finder(integers: Sequence[int], target_sum: int) \
-# 	-> set[tuple[int, int]]:
 def _naive_sum_finder(ints: set[int], target_sum: int) \
 	-> set[tuple[int, int]]:
 	"""Naive and slow algorithm (just here for testing purposes). Return a set
@@ -60,3 +58,4 @@ def _naive_sum_finder(ints: set[int], target_sum: int) \
 				pairs.add((integers[i], integers[j]))
 	
 	return pairs
+	
